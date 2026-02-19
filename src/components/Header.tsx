@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, Phone } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { label: "Home", href: "#home" },
@@ -14,25 +21,35 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md shadow-sm">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-card/98 backdrop-blur-lg shadow-md"
+          : "bg-card/90 backdrop-blur-md"
+      }`}
+    >
       <div className="section-container flex items-center justify-between h-16 md:h-20">
         {/* Logo area */}
-        <a href="#home" className="flex items-center gap-3">
+        <a href="#home" className="flex items-center gap-3 shrink-0">
           <img
             src={logo}
             alt="Karen West Natural Springs Logo"
-            className="h-12 md:h-16 w-auto object-contain"
-            style={{ imageRendering: "auto" }}
+            className="h-12 md:h-16 w-auto object-contain drop-shadow-sm"
+            style={{
+              imageRendering: "auto",
+              mixBlendMode: "multiply",
+              background: "transparent",
+            }}
           />
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:scale-x-0 after:origin-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-left"
             >
               {link.label}
             </a>
@@ -42,7 +59,7 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-3">
           <a
             href="tel:+254717630186"
-            className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
           >
             <Phone className="w-4 h-4" />
             +254 717 630 186
@@ -61,21 +78,21 @@ const Header = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-card border-t border-border">
-          <div className="section-container py-4 flex flex-col gap-3">
+        <div className="md:hidden bg-card border-t border-border animate-fade-in-up">
+          <div className="section-container py-4 flex flex-col gap-1">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium text-foreground/80 hover:text-primary py-2 transition-colors"
+                className="text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 py-3 px-3 rounded-lg transition-colors"
               >
                 {link.label}
               </a>
             ))}
             <a
               href="tel:+254717630186"
-              className="flex items-center gap-2 text-sm font-medium text-primary mt-2"
+              className="flex items-center gap-2 text-sm font-semibold text-primary mt-2 px-3 py-3 bg-primary/10 rounded-lg"
             >
               <Phone className="w-4 h-4" />
               +254 717 630 186

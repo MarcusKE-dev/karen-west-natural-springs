@@ -2,31 +2,40 @@ import heroImage from "@/assets/hero-water.jpg";
 
 const HeroSection = () => {
   return (
-    <section id="home" className="relative min-h-[90vh] flex items-center overflow-hidden">
+    <section id="home" className="relative min-h-[92vh] flex items-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
         <img src={heroImage} alt="Crystal clear water" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-navy/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-navy/90 via-navy/75 to-primary/60" />
+      </div>
+
+      {/* Floating decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-accent/10 blur-3xl animate-pulse" />
+        <div className="absolute bottom-32 left-10 w-48 h-48 rounded-full bg-primary/15 blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
       <div className="relative section-container py-32 md:py-40">
         <div className="max-w-2xl animate-fade-in-up">
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-navy-foreground leading-tight mb-6">
+          <span className="inline-block px-4 py-1.5 mb-6 rounded-full bg-accent/20 text-accent text-sm font-semibold tracking-wide backdrop-blur-sm border border-accent/20">
+            Karen West Natural Spring
+          </span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-navy-foreground leading-tight mb-6">
             Pure Water.<br />Reliable Supply.
           </h1>
-          <p className="text-lg md:text-xl text-navy-foreground/90 mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-navy-foreground/90 mb-10 leading-relaxed max-w-xl">
             Karen West Natural Spring delivers purified drinking water and bulk soft water transportation across the region.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="#purified"
-              className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-base font-semibold bg-card text-primary shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-card text-primary shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
             >
               Order Purified Water
             </a>
             <a
               href="#transport"
-              className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-base font-semibold border-2 border-navy-foreground/40 text-navy-foreground hover:bg-navy-foreground/10 transition-all"
+              className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold border-2 border-navy-foreground/40 text-navy-foreground hover:bg-navy-foreground/10 backdrop-blur-sm transition-all duration-300"
             >
               Book Water Transport
             </a>

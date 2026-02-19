@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Truck } from "lucide-react";
-import waterTruck from "@/assets/water-truck.jpg";
+import { Truck, MapPin } from "lucide-react";
+import waterTruck from "@/assets/water-truck.png";
 import { toast } from "sonner";
 
 const BulkTransportSection = () => {
@@ -13,6 +13,21 @@ const BulkTransportSection = () => {
     setForm({ location: "", amount: "", name: "", phone: "" });
   };
 
+  const handlePinLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setForm({ ...form, location: `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}` });
+          toast.success("Location pinned successfully!");
+        },
+        () => toast.error("Could not get your location. Please enter it manually.")
+      );
+    } else {
+      toast.error("Geolocation is not supported by your browser.");
+    }
+  };
+
   return (
     <section id="transport" className="py-20 md:py-28 bg-background">
       <div className="section-container">
@@ -20,7 +35,7 @@ const BulkTransportSection = () => {
           <span className="text-sm font-semibold tracking-widest uppercase text-primary mb-3 block">Section 2</span>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">Bulk Soft Water Transportation</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            We supply soft water using our fleet of blue boozers for institutions, construction sites, farms, and other water businesses. Reliable delivery, competitive pricing.
+            We supply soft water using our fleet of water trucks for institutions, construction sites, farms, and other water businesses. Reliable delivery, competitive pricing.
           </p>
         </div>
 
@@ -86,13 +101,26 @@ const BulkTransportSection = () => {
                   <option value="10000">10,000 Litres</option>
                 </select>
               </div>
-              <input
-                required
-                placeholder="Delivery Location"
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground"
-              />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="text-sm font-medium text-foreground">Delivery Location</label>
+                  <button
+                    type="button"
+                    onClick={handlePinLocation}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    Pin My Location
+                  </button>
+                </div>
+                <input
+                  required
+                  placeholder="Enter location or pin it"
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
               <input
                 placeholder="Amount of water required (litres)"
                 value={form.amount}

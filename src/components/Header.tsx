@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X, Phone } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -17,15 +18,12 @@ const Header = () => {
       <div className="section-container flex items-center justify-between h-16 md:h-20">
         {/* Logo area */}
         <a href="#home" className="flex items-center gap-3">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-water-gradient flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="w-6 h-6 text-primary-foreground" fill="currentColor">
-              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2C20 10.48 17.33 6.55 12 2z"/>
-            </svg>
-          </div>
-          <div>
-            <span className="font-display text-lg md:text-xl font-bold text-navy">Karen West</span>
-            <span className="block text-xs text-muted-foreground -mt-1">Spring Water</span>
-          </div>
+          <img
+            src={logo}
+            alt="Karen West Natural Springs Logo"
+            className="h-12 md:h-16 w-auto object-contain"
+            style={{ imageRendering: "auto" }}
+          />
         </a>
 
         {/* Desktop nav */}
@@ -43,11 +41,11 @@ const Header = () => {
 
         <div className="hidden md:flex items-center gap-3">
           <a
-            href="tel:+254726732212"
+            href="tel:+254717630186"
             className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             <Phone className="w-4 h-4" />
-            +254 726 732 212
+            +254 717 630 186
           </a>
         </div>
 
@@ -76,11 +74,11 @@ const Header = () => {
               </a>
             ))}
             <a
-              href="tel:+254726732212"
+              href="tel:+254717630186"
               className="flex items-center gap-2 text-sm font-medium text-primary mt-2"
             >
               <Phone className="w-4 h-4" />
-              +254 726 732 212
+              +254 717 630 186
             </a>
           </div>
         </div>

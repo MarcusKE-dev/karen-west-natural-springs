@@ -14,7 +14,7 @@ const testimonials = [
   {
     name: "Mary Njeri",
     role: "School Administrator, Rongai",
-    text: "We order bulk water from Karen West for our boarding school every month. Their blue boozers arrive on schedule and the process is seamless. They're reliable partners for our institution.",
+    text: "We order bulk water from Karen West for our boarding school every month. Their water trucks arrive on schedule and the process is seamless. They're reliable partners for our institution.",
   },
 ];
 

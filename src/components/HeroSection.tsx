@@ -6,15 +6,15 @@ const HeroSection = () => {
       {/* Background */}
       <div className="absolute inset-0">
         <img src={heroImage} alt="Crystal clear water" className="w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, hsla(205,85%,45%,0.82) 0%, hsla(215,60%,18%,0.75) 100%)" }} />
+        <div className="absolute inset-0 bg-navy/80" />
       </div>
 
       <div className="relative section-container py-32 md:py-40">
         <div className="max-w-2xl animate-fade-in-up">
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-primary-foreground leading-tight mb-6">
+          <h1 className="text-4xl md:text-6xl font-display font-bold text-navy-foreground leading-tight mb-6">
             Pure Water.<br />Reliable Supply.
           </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/90 mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-navy-foreground/90 mb-10 leading-relaxed">
             Karen West Natural Spring delivers purified drinking water and bulk soft water transportation across the region.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
@@ -26,7 +26,7 @@ const HeroSection = () => {
             </a>
             <a
               href="#transport"
-              className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-base font-semibold border-2 border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 transition-all"
+              className="inline-flex items-center justify-center rounded-lg px-8 py-4 text-base font-semibold border-2 border-navy-foreground/40 text-navy-foreground hover:bg-navy-foreground/10 transition-all"
             >
               Book Water Transport
             </a>

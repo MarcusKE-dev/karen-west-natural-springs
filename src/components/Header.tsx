@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X, Phone } from "lucide-react";
-import logo from "@/assets/logo.png";
+
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -30,17 +30,10 @@ const Header = () => {
     >
       <div className="section-container flex items-center justify-between h-16 md:h-20">
         {/* Logo area */}
-        <a href="#home" className="flex items-center gap-3 shrink-0">
-          <img
-            src={logo}
-            alt="Karen West Natural Springs Logo"
-            className="h-12 md:h-16 w-auto object-contain drop-shadow-sm"
-            style={{
-              imageRendering: "auto",
-              mixBlendMode: "multiply",
-              background: "transparent",
-            }}
-          />
+        <a href="#home" className="flex items-center gap-2 shrink-0">
+          <span className="text-sm md:text-base font-display font-bold text-primary tracking-wide">
+            Karen West Natural Spring
+          </span>
         </a>
 
         {/* Desktop nav */}

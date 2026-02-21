@@ -1,4 +1,5 @@
 import heroImage from "@/assets/hero-water.jpg";
+import logo from "@/assets/logo.png";
 
 const HeroSection = () => {
   return (
@@ -17,9 +18,17 @@ const HeroSection = () => {
 
       <div className="relative section-container py-32 md:py-40">
         <div className="max-w-2xl animate-fade-in-up">
-          <span className="inline-block px-4 py-1.5 mb-6 rounded-full bg-accent/20 text-accent text-sm font-semibold tracking-wide backdrop-blur-sm border border-accent/20">
-            Karen West Natural Spring
-          </span>
+          <div className="flex items-center gap-4 mb-6">
+            <img
+              src={logo}
+              alt="Karen West Natural Springs Logo"
+              className="h-20 sm:h-24 md:h-28 w-auto object-contain drop-shadow-lg"
+              style={{ imageRendering: "auto" }}
+            />
+            <span className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-accent tracking-wide leading-tight">
+              Karen West<br />Natural Spring
+            </span>
+          </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-navy-foreground leading-tight mb-6">
             Pure Water.<br />Reliable Supply.
           </h1>

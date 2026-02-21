@@ -22,7 +22,7 @@ const HeroSection = () => {
             <img
               src={logo}
               alt="Karen West Natural Springs Logo"
-              className="h-28 sm:h-32 md:h-40 w-auto object-contain drop-shadow-lg"
+              className="h-36 sm:h-44 md:h-52 w-auto object-contain drop-shadow-lg"
               style={{ imageRendering: "auto" }}
             />
             <span className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-accent tracking-wide leading-tight">

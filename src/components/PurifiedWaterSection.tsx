@@ -120,9 +120,6 @@ const PurifiedWaterSection = () => {
               <div key={i} className="bg-card rounded-2xl shadow-md border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div className="aspect-[3/4] bg-gradient-to-b from-secondary to-background overflow-hidden relative">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <div className="absolute top-3 right-3 bg-navy text-navy-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                    {product.price} KSH
-                  </div>
                 </div>
                 <div className="p-4">
                   <h4 className="font-semibold text-foreground text-sm mb-2 line-clamp-2">{product.name}</h4>
@@ -185,6 +182,37 @@ const PurifiedWaterSection = () => {
           </div>
         </div>
 
+        {/* Cart Summary */}
+        {cart.length > 0 && (
+          <div className="mb-16 bg-gradient-to-br from-navy to-primary/90 rounded-2xl p-6 shadow-xl">
+            <h3 className="text-lg font-display font-bold text-navy-foreground mb-4 flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              Your Cart ({cart.length} items)
+            </h3>
+            <div className="space-y-2 mb-4">
+              {cart.map((item, i) => (
+                <div key={i} className="flex justify-between text-sm text-navy-foreground/80">
+                  <span>{item.name} x{item.qty}</span>
+                  <span className="font-semibold">{item.total} KSH</span>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-navy-foreground/20 pt-3 flex justify-between text-navy-foreground font-bold text-lg">
+              <span>Total</span>
+              <span>{cart.reduce((sum, item) => sum + item.total, 0)} KSH</span>
+            </div>
+            <button
+              onClick={() => {
+                toast.success("Order placed! We'll contact you to confirm.");
+                setCart([]);
+              }}
+              className="mt-4 w-full py-3.5 rounded-xl bg-card text-primary font-bold text-lg hover:shadow-lg transition-all duration-300"
+            >
+              Checkout
+            </button>
+          </div>
+        )}
+
         {/* Customized Water Bottles */}
         <div className="mb-16">
           <div className="bg-gradient-to-br from-navy via-primary/90 to-navy rounded-2xl p-8 sm:p-10 shadow-2xl text-navy-foreground relative overflow-hidden">
@@ -220,38 +248,6 @@ const PurifiedWaterSection = () => {
             </div>
           </div>
         </div>
-
-
-        {/* Cart Summary */}
-        {cart.length > 0 && (
-          <div className="mb-16 bg-gradient-to-br from-navy to-primary/90 rounded-2xl p-6 shadow-xl">
-            <h3 className="text-lg font-display font-bold text-navy-foreground mb-4 flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
-              Your Cart ({cart.length} items)
-            </h3>
-            <div className="space-y-2 mb-4">
-              {cart.map((item, i) => (
-                <div key={i} className="flex justify-between text-sm text-navy-foreground/80">
-                  <span>{item.name} x{item.qty}</span>
-                  <span className="font-semibold">{item.total} KSH</span>
-                </div>
-              ))}
-            </div>
-            <div className="border-t border-navy-foreground/20 pt-3 flex justify-between text-navy-foreground font-bold text-lg">
-              <span>Total</span>
-              <span>{cart.reduce((sum, item) => sum + item.total, 0)} KSH</span>
-            </div>
-            <button
-              onClick={() => {
-                toast.success("Order placed! We'll contact you to confirm.");
-                setCart([]);
-              }}
-              className="mt-4 w-full py-3.5 rounded-xl bg-card text-primary font-bold text-lg hover:shadow-lg transition-all duration-300"
-            >
-              Checkout
-            </button>
-          </div>
-        )}
 
         {/* Order Form */}
         <div className="bg-card rounded-2xl shadow-lg border border-border p-6 sm:p-8 max-w-2xl mx-auto">

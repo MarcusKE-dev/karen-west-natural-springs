@@ -22,10 +22,10 @@ const packagedProducts = [
 ];
 
 const bottledRefillProducts = [
-  { name: "5 Litre Bottle (Soft)", price: 150, image: bottle5l },
-  { name: "10 Litre Bottle (Soft)", price: 300, image: bottle10l },
-  { name: "20 Litre Bottle (Soft)", price: 500, image: bottle20lSoft },
-  { name: "20 Litre Bottle (Hard/Reusable)", price: 1500, image: bottle20lHard },
+  { name: "5 Litre Bottle", price: 150, image: bottle5l },
+  { name: "10 Litre Bottle", price: 300, image: bottle10l },
+  { name: "20 Litre Soft Bottle", price: 500, image: bottle20lSoft },
+  { name: "20 Litre Hard Bottle", price: 1500, image: bottle20lHard },
 ];
 
 const PurifiedWaterSection = () => {
@@ -185,6 +185,43 @@ const PurifiedWaterSection = () => {
           </div>
         </div>
 
+        {/* Customized Water Bottles */}
+        <div className="mb-16">
+          <div className="bg-gradient-to-br from-navy via-primary/90 to-navy rounded-2xl p-8 sm:p-10 shadow-2xl text-navy-foreground relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 right-10 w-40 h-40 rounded-full bg-accent blur-3xl" />
+              <div className="absolute bottom-10 left-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
+            </div>
+            <div className="relative">
+              <h3 className="text-2xl md:text-3xl font-display font-bold mb-4">
+                🎉 Customized Bottled Water for Your Special Event
+              </h3>
+              <p className="text-navy-foreground/90 text-base md:text-lg mb-6 leading-relaxed">
+                Turn every celebration into a branded experience. At Karen West Natural Spring, we design and package premium purified water with custom labels tailored to your event — whether it's a wedding, graduation, seminar, or corporate function.
+              </p>
+              <p className="text-navy-foreground/80 text-base mb-6 leading-relaxed">
+                Add your names, logo, colors, or special message and give your guests something both elegant and practical.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Clean, high-quality purified water</div>
+                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Custom-designed labels</div>
+                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Bulk orders for any event size</div>
+                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Fast, reliable delivery</div>
+              </div>
+              <p className="text-navy-foreground/90 text-base font-semibold mb-6">
+                Make your event stand out — refresh your guests in style.
+              </p>
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-card text-primary shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              >
+                Order Your Customized Bottles Today
+              </a>
+            </div>
+          </div>
+        </div>
+
+
         {/* Cart Summary */}
         {cart.length > 0 && (
           <div className="mb-16 bg-gradient-to-br from-navy to-primary/90 rounded-2xl p-6 shadow-xl">
@@ -265,10 +302,10 @@ const PurifiedWaterSection = () => {
               >
                 <option value="">Select Product</option>
                 <option value="refill">Refill Water</option>
-                <option value="5l-soft">5L Bottle (Soft)</option>
-                <option value="10l-soft">10L Bottle (Soft)</option>
-                <option value="20l-soft">20L Bottle (Soft)</option>
-                <option value="20l-hard">20L Bottle (Hard/Reusable)</option>
+                <option value="5l">5L Bottle</option>
+                <option value="10l">10L Bottle</option>
+                <option value="20l-soft">20L Soft Bottle</option>
+                <option value="20l-hard">20L Hard Bottle</option>
                 <option value="500ml">500ml Pack (24 pcs)</option>
                 <option value="1litre">1 Litre Pack (12 pcs)</option>
               </select>

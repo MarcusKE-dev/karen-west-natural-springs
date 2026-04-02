@@ -5,45 +5,35 @@ import { toast } from "sonner";
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
 
-   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // 1. Send the data to Formspree
+  try {
+    const formData = new FormData();
+    formData.append("name", form.name || "");
+    formData.append("phone", form.phone || "");
+    formData.append("email", form.email || "");
+    formData.append("message", form.message || "");
+
     const response = await fetch("https://formspree.io/f/meeplrnz", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      const formData = new FormData();
-formData.append("name", form.name);
-formData.append("phone", form.phone);
-formData.append("email", form.email);
-formData.append("message", form.message);
-
-const response = await fetch("https://formspree.io/f/meeplrnz", {
-  method: "POST",
-  headers: {
-    "Accept": "application/json"
-  },
-  body: formData,
-});
-
-if (response.ok) {
-  toast.success("Message sent! We'll get back to you soon.");
-  setForm({ name: "", phone: "", email: "", message: "" });
-} else {
-  toast.error("Something went wrong. Please try again.");
-}
+      body: formData,
+    });
 
     if (response.ok) {
-      // 2. If successful, show your toast and reset the form
       toast.success("Message sent! We'll get back to you soon.");
       setForm({ name: "", phone: "", email: "", message: "" });
     } else {
-      // 3. Handle errors (optional but good for UX)
       toast.error("Something went wrong. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Error sending message.");
+  }
+};
 
 
   return (

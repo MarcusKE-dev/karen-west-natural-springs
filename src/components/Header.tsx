@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Phone } from "lucide-react";
-
+import { Menu, X, Phone, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);

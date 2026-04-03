@@ -37,11 +37,7 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
-              href="https://wa.me/254705062319?text=Hi%2C%20I%20want%20to%20order%20purified%20water.%20Please%20send%20me%20details%20and%20price%20."
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-card text-primary shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
-              className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-card text-primary shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              href="#purified"
             >
               Order Purified Water
             </a>

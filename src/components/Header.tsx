@@ -3,6 +3,7 @@ import { Menu, X, Phone, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
+  const { totalItems, setIsCartOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 

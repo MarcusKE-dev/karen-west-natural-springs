@@ -7,6 +7,7 @@ import bottle10l from "@/assets/bottle-10l.png";
 import bottle20lSoft from "@/assets/bottle-20l-soft.png";
 import bottle20lHard from "@/assets/bottle-20l-hard.png";
 import QuantitySelector from "./QuantitySelector";
+import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
 const refillOptions = [
@@ -29,38 +30,26 @@ const bottledRefillProducts = [
 ];
 
 const PurifiedWaterSection = () => {
+  const { addItem } = useCart();
   const [refillLitres, setRefillLitres] = useState(20);
   const [packageQty, setPackageQty] = useState<Record<number, number>>({ 0: 1, 1: 1 });
   const [bottleQty, setBottleQty] = useState<Record<number, number>>({ 0: 1, 1: 1, 2: 1, 3: 1 });
-  const [cart, setCart] = useState<Array<{ name: string; qty: number; total: number }>>([]);
-  const [orderForm, setOrderForm] = useState({
-    name: "", phone: "", location: "", productType: "", quantity: "", instructions: "",
-  });
 
-  const addToCart = (name: string, qty: number, unitPrice: number) => {
-    setCart([...cart, { name, qty, total: qty * unitPrice }]);
-    toast.success(`${name} x${qty} added to cart!`);
+  const handleAddRefill = () => {
+    addItem({ name: `Refill Water (${refillLitres}L)`, type: "purified", quantity: 1, unitPrice: refillLitres * 5 });
+    toast.success(`Refill Water ${refillLitres}L added to cart!`);
   };
 
-  const handlePinLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setOrderForm({ ...orderForm, location: `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}` });
-          toast.success("Location pinned successfully!");
-        },
-        () => toast.error("Could not get your location. Please enter it manually.")
-      );
-    } else {
-      toast.error("Geolocation is not supported by your browser.");
-    }
+  const handleAddBottle = (product: typeof bottledRefillProducts[0], i: number) => {
+    const qty = bottleQty[i] || 1;
+    addItem({ name: product.name, type: "purified", quantity: qty, unitPrice: product.price });
+    toast.success(`${product.name} x${qty} added to cart!`);
   };
 
-  const handleOrder = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Order submitted! We will contact you shortly.");
-    setOrderForm({ name: "", phone: "", location: "", productType: "", quantity: "", instructions: "" });
+  const handleAddPackage = (product: typeof packagedProducts[0], i: number) => {
+    const qty = packageQty[i] || 1;
+    addItem({ name: product.name, type: "packaged", quantity: qty, unitPrice: product.price });
+    toast.success(`${product.name} x${qty} added to cart!`);
   };
 
   return (
@@ -96,7 +85,6 @@ const PurifiedWaterSection = () => {
                 }`}
               >
                 <span className="text-2xl font-bold text-foreground">{opt.litres}L</span>
-                <span className="block text-sm text-muted-foreground mt-1">{opt.price} KSH</span>
               </button>
             ))}
           </div>
@@ -104,6 +92,13 @@ const PurifiedWaterSection = () => {
             <label className="text-sm font-medium text-foreground whitespace-nowrap">Custom litres:</label>
             <QuantitySelector value={refillLitres} onChange={setRefillLitres} min={1} max={10000} />
             <span className="text-sm text-muted-foreground">= <strong className="text-primary text-lg">{refillLitres * 5} KSH</strong></span>
+            <button
+              onClick={handleAddRefill}
+              className="ml-auto py-2.5 px-6 rounded-xl bg-water-gradient text-primary-foreground font-semibold text-sm hover:opacity-90 hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Add to Cart
+            </button>
           </div>
         </div>
 
@@ -133,7 +128,7 @@ const PurifiedWaterSection = () => {
                     <span className="text-xs text-muted-foreground">Total: {product.price * (bottleQty[i] || 1)} KSH</span>
                   </div>
                   <button
-                    onClick={() => addToCart(product.name, bottleQty[i] || 1, product.price)}
+                    onClick={() => handleAddBottle(product, i)}
                     className="mt-3 w-full py-2.5 rounded-xl bg-navy text-navy-foreground font-semibold text-sm hover:opacity-90 hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     <ShoppingCart className="w-4 h-4" />
@@ -170,7 +165,7 @@ const PurifiedWaterSection = () => {
                     <span className="text-sm text-muted-foreground">Total: <strong className="text-foreground">{product.price * (packageQty[i] || 1)} KSH</strong></span>
                   </div>
                   <button
-                    onClick={() => addToCart(product.name, packageQty[i] || 1, product.price)}
+                    onClick={() => handleAddPackage(product, i)}
                     className="mt-4 w-full py-3.5 rounded-xl bg-water-gradient text-primary-foreground font-bold hover:opacity-90 hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     <ShoppingCart className="w-5 h-5" />
@@ -181,37 +176,6 @@ const PurifiedWaterSection = () => {
             ))}
           </div>
         </div>
-
-        {/* Cart Summary */}
-        {cart.length > 0 && (
-          <div className="mb-16 bg-gradient-to-br from-navy to-primary/90 rounded-2xl p-6 shadow-xl">
-            <h3 className="text-lg font-display font-bold text-navy-foreground mb-4 flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
-              Your Cart ({cart.length} items)
-            </h3>
-            <div className="space-y-2 mb-4">
-              {cart.map((item, i) => (
-                <div key={i} className="flex justify-between text-sm text-navy-foreground/80">
-                  <span>{item.name} x{item.qty}</span>
-                  <span className="font-semibold">{item.total} KSH</span>
-                </div>
-              ))}
-            </div>
-            <div className="border-t border-navy-foreground/20 pt-3 flex justify-between text-navy-foreground font-bold text-lg">
-              <span>Total</span>
-              <span>{cart.reduce((sum, item) => sum + item.total, 0)} KSH</span>
-            </div>
-            <button
-              onClick={() => {
-                toast.success("Order placed! We'll contact you to confirm.");
-                setCart([]);
-              }}
-              className="mt-4 w-full py-3.5 rounded-xl bg-card text-primary font-bold text-lg hover:shadow-lg transition-all duration-300"
-            >
-              Checkout
-            </button>
-          </div>
-        )}
 
         {/* Customized Water Bottles */}
         <div className="mb-16">
@@ -225,10 +189,7 @@ const PurifiedWaterSection = () => {
                 🎉 Customized Bottled Water for Your Special Event
               </h3>
               <p className="text-navy-foreground/90 text-base md:text-lg mb-6 leading-relaxed">
-                Turn every celebration into a branded experience. At Karen West Natural Spring, we design and package premium purified water with custom labels tailored to your event — whether it's a wedding, graduation, seminar, or corporate function.
-              </p>
-              <p className="text-navy-foreground/80 text-base mb-6 leading-relaxed">
-                Add your names, logo, colors, or special message and give your guests something both elegant and practical.
+                Turn every celebration into a branded experience. At Karen West Natural Spring, we design and package premium purified water with custom labels tailored to your event.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Clean, high-quality purified water</div>
@@ -236,9 +197,6 @@ const PurifiedWaterSection = () => {
                 <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Bulk orders for any event size</div>
                 <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Fast, reliable delivery</div>
               </div>
-              <p className="text-navy-foreground/90 text-base font-semibold mb-6">
-                Make your event stand out — refresh your guests in style.
-              </p>
               <a
                 href="#contact"
                 className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-card text-primary shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
@@ -247,88 +205,6 @@ const PurifiedWaterSection = () => {
               </a>
             </div>
           </div>
-        </div>
-
-        {/* Order Form */}
-        <div className="bg-card rounded-2xl shadow-lg border border-border p-6 sm:p-8 max-w-2xl mx-auto">
-          <h3 className="text-xl font-display font-bold text-foreground mb-6 text-center">Order Purified Water</h3>
-          <form onSubmit={handleOrder} className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
-              <input
-                required
-                placeholder="Your Name"
-                value={orderForm.name}
-                onChange={(e) => setOrderForm({ ...orderForm, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
-              <input
-                required
-                placeholder="Phone Number"
-                value={orderForm.phone}
-                onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium text-foreground">Delivery Location</label>
-                <button
-                  type="button"
-                  onClick={handlePinLocation}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 px-2.5 py-1 rounded-full transition-colors"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  Pin My Location
-                </button>
-              </div>
-              <input
-                required
-                placeholder="Enter location or pin it"
-                value={orderForm.location}
-                onChange={(e) => setOrderForm({ ...orderForm, location: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <select
-                required
-                value={orderForm.productType}
-                onChange={(e) => setOrderForm({ ...orderForm, productType: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              >
-                <option value="">Select Product</option>
-                <option value="refill">Refill Water</option>
-                <option value="5l">5L Bottle</option>
-                <option value="10l">10L Bottle</option>
-                <option value="20l-soft">20L Soft Bottle</option>
-                <option value="20l-hard">20L Hard Bottle</option>
-                <option value="500ml">500ml Pack (24 pcs)</option>
-                <option value="1litre">1 Litre Pack (12 pcs)</option>
-              </select>
-              <input
-                required
-                placeholder="Quantity"
-                type="number"
-                min={1}
-                value={orderForm.quantity}
-                onChange={(e) => setOrderForm({ ...orderForm, quantity: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
-            </div>
-            <textarea
-              placeholder="Delivery Instructions (optional)"
-              rows={3}
-              value={orderForm.instructions}
-              onChange={(e) => setOrderForm({ ...orderForm, instructions: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground resize-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-            />
-            <button
-              type="submit"
-              className="w-full py-4 rounded-xl bg-water-gradient text-primary-foreground font-bold text-lg hover:opacity-90 hover:shadow-xl transition-all duration-300"
-            >
-              Submit Order
-            </button>
-          </form>
         </div>
       </div>
     </section>

@@ -52,7 +52,8 @@ const CartDrawer = () => {
           location: checkoutForm.location || null,
           instructions: checkoutForm.instructions || null,
           total_amount: totalAmount,
-        })
+          order_number: "temp",
+        } as any)
         .select("id, order_number")
         .single();
 

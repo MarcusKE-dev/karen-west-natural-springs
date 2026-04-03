@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Phone } from "lucide-react";
-
+import { Menu, X, Phone, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
+  const { totalItems, setIsCartOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -50,6 +51,18 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="relative flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Cart
+            {totalItems > 0 && (
+              <span className="ml-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
+          </button>
           <a
             href="tel:+254717630186"
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"

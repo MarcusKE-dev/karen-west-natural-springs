@@ -2,15 +2,53 @@ import { useState } from "react";
 import { Truck, MapPin } from "lucide-react";
 import waterTruck from "@/assets/water-truck.png";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const BulkTransportSection = () => {
   const [capacity, setCapacity] = useState("10000");
   const [form, setForm] = useState({ location: "", amount: "", name: "", phone: "" });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Transport request submitted! We'll reach out shortly.");
-    setForm({ location: "", amount: "", name: "", phone: "" });
+    setSubmitting(true);
+
+    try {
+      const { data: order, error } = await supabase
+        .from("orders")
+        .insert({
+          customer_name: form.name,
+          phone: form.phone,
+          location: form.location || null,
+          instructions: `Bulk transport: ${capacity}L truck, Amount: ${form.amount || capacity}L`,
+          total_amount: 0,
+          order_number: "temp",
+        } as any)
+        .select("order_number")
+        .single();
+
+      if (error) throw error;
+
+      // Insert order item
+      if (order) {
+        await supabase.from("order_items").insert({
+          order_id: order.order_number ? undefined : undefined,
+          product_name: `Bulk Water Transport (${capacity}L Truck)`,
+          product_type: "truck",
+          quantity: 1,
+          unit_price: 0,
+          total_price: 0,
+        } as any);
+      }
+
+      toast.success(`Transport request submitted! Order: ${order?.order_number}`);
+      setForm({ location: "", amount: "", name: "", phone: "" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handlePinLocation = () => {
@@ -37,12 +75,11 @@ const BulkTransportSection = () => {
           </span>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-4">Bulk Soft Water Transportation</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-base md:text-lg">
-            We supply soft water using our fleet of water trucks for institutions, construction sites, farms, and other water businesses. Reliable delivery, competitive pricing.
+            We supply soft water using our fleet of water trucks for institutions, construction sites, farms, and other water businesses.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-          {/* Image & Info */}
           <div>
             <div className="rounded-2xl overflow-hidden shadow-xl mb-8 group">
               <img src={waterTruck} alt="Karen West water truck" className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -70,35 +107,18 @@ const BulkTransportSection = () => {
               </button>
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              * Pricing starts from <strong className="text-foreground">3,000 KSH</strong> and varies by delivery location and quantity. Contact us for a quote.
+              * Pricing starts from <strong className="text-foreground">3,000 KSH</strong> and varies by delivery location and quantity.
             </p>
           </div>
 
-          {/* Form */}
           <div className="bg-card rounded-2xl shadow-lg border border-border p-6 sm:p-8">
             <h3 className="text-xl font-display font-bold text-foreground mb-6">Request Water Transport</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                required
-                placeholder="Your Name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
-              <input
-                required
-                placeholder="Phone Number"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
+              <input required placeholder="Your Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              <input required placeholder="Phone Number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Capacity</label>
-                <select
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                >
+                <select value={capacity} onChange={(e) => setCapacity(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
                   <option value="5000">5,000 Litres</option>
                   <option value="10000">10,000 Litres</option>
                 </select>
@@ -106,34 +126,15 @@ const BulkTransportSection = () => {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <label className="text-sm font-medium text-foreground">Delivery Location</label>
-                  <button
-                    type="button"
-                    onClick={handlePinLocation}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 px-2.5 py-1 rounded-full transition-colors"
-                  >
-                    <MapPin className="w-3.5 h-3.5" />
-                    Pin My Location
+                  <button type="button" onClick={handlePinLocation} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 px-2.5 py-1 rounded-full transition-colors">
+                    <MapPin className="w-3.5 h-3.5" /> Pin My Location
                   </button>
                 </div>
-                <input
-                  required
-                  placeholder="Enter location or pin it"
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                />
+                <input required placeholder="Enter location or pin it" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               </div>
-              <input
-                placeholder="Amount of water required (litres)"
-                value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-              />
-              <button
-                type="submit"
-                className="w-full py-4 rounded-xl bg-water-gradient text-primary-foreground font-bold text-lg hover:opacity-90 hover:shadow-xl transition-all duration-300"
-              >
-                Request Transport
+              <input placeholder="Amount of water required (litres)" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              <button type="submit" disabled={submitting} className="w-full py-4 rounded-xl bg-water-gradient text-primary-foreground font-bold text-lg hover:opacity-90 hover:shadow-xl transition-all duration-300 disabled:opacity-50">
+                {submitting ? "Submitting..." : "Request Transport"}
               </button>
             </form>
           </div>

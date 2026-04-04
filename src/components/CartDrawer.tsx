@@ -90,7 +90,20 @@ const CartDrawer = () => {
         // Backup failed silently — order is in DB
       }
 
-      setOrderResult({ orderNumber: order.order_number });
+      // Trigger notification edge function
+      let trackingUrl = `/track/${order.order_number}`;
+      let customerWhatsappLink: string | null = null;
+      try {
+        const { data: notifData } = await supabase.functions.invoke("notify-order", {
+          body: { orderId: order.id },
+        });
+        if (notifData?.trackingUrl) trackingUrl = notifData.trackingUrl;
+        if (notifData?.customerWhatsappLink) customerWhatsappLink = notifData.customerWhatsappLink;
+      } catch {
+        // Notification failed silently — order is placed
+      }
+
+      setOrderResult({ orderNumber: order.order_number, trackingUrl, customerWhatsappLink });
       toast.success(`Order #${order.order_number} placed successfully!`);
     } catch (err) {
       console.error(err);

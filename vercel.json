@@ -4,5 +4,3 @@
     { "src": "/.*", "dest": "/index.html" }
   ]
 }
-
-Add vercel.json for SPA routing

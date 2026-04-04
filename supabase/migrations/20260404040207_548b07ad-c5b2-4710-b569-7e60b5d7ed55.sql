@@ -1,1 +1,2 @@
-ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+-- Add optional customer email to orders table
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_email TEXT;

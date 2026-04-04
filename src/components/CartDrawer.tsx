@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 const CartDrawer = () => {
   const { items, updateQuantity, removeItem, clearCart, totalItems, totalAmount, isCartOpen, setIsCartOpen } = useCart();
-  const [checkoutForm, setCheckoutForm] = useState({ name: "", phone: "", location: "", instructions: "" });
+  const [checkoutForm, setCheckoutForm] = useState({ name: "", phone: "", email: "", location: "", instructions: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<{ orderNumber: string; trackingUrl: string; customerWhatsappLink: string | null } | null>(null);
 
@@ -49,6 +49,7 @@ const CartDrawer = () => {
         .insert({
           customer_name: checkoutForm.name,
           phone: checkoutForm.phone,
+          customer_email: checkoutForm.email || null,
           location: checkoutForm.location || null,
           instructions: checkoutForm.instructions || null,
           total_amount: totalAmount,
@@ -116,7 +117,7 @@ const CartDrawer = () => {
   const handleDone = () => {
     clearCart();
     setOrderResult(null);
-    setCheckoutForm({ name: "", phone: "", location: "", instructions: "" });
+    setCheckoutForm({ name: "", phone: "", email: "", location: "", instructions: "" });
     setIsCartOpen(false);
   };
 
@@ -199,6 +200,7 @@ const CartDrawer = () => {
               <p className="text-sm font-semibold text-foreground">Delivery Details</p>
               <input required placeholder="Your Name" value={checkoutForm.name} onChange={(e) => setCheckoutForm({ ...checkoutForm, name: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <input required placeholder="Phone Number" value={checkoutForm.phone} onChange={(e) => setCheckoutForm({ ...checkoutForm, phone: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              <input type="email" placeholder="Email (optional — get order confirmation)" value={checkoutForm.email} onChange={(e) => setCheckoutForm({ ...checkoutForm, email: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <button type="button" onClick={handlePinLocation} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition-colors">

@@ -100,7 +100,7 @@ const Admin = () => {
   };
 
   const updateStatus = async (orderId: string, status: string) => {
-    await supabase.from("orders").update({ status }).eq("id", orderId);
+    await supabase.from("orders").update({ status: status as "pending" | "confirmed" | "delivered" | "cancelled" }).eq("id", orderId);
     fetchData();
   };
 

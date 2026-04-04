@@ -9,7 +9,7 @@ const CartDrawer = () => {
   const { items, updateQuantity, removeItem, clearCart, totalItems, totalAmount, isCartOpen, setIsCartOpen } = useCart();
   const [checkoutForm, setCheckoutForm] = useState({ name: "", phone: "", location: "", instructions: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderResult, setOrderResult] = useState<{ orderNumber: string } | null>(null);
+  const [orderResult, setOrderResult] = useState<{ orderNumber: string; trackingUrl: string; customerWhatsappLink: string | null } | null>(null);
 
   const handlePinLocation = () => {
     if (navigator.geolocation) {

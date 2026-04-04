@@ -9,7 +9,7 @@ const CartDrawer = () => {
   const { items, updateQuantity, removeItem, clearCart, totalItems, totalAmount, isCartOpen, setIsCartOpen } = useCart();
   const [checkoutForm, setCheckoutForm] = useState({ name: "", phone: "", location: "", instructions: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderResult, setOrderResult] = useState<{ orderNumber: string } | null>(null);
+  const [orderResult, setOrderResult] = useState<{ orderNumber: string; trackingUrl: string; customerWhatsappLink: string | null } | null>(null);
 
   const handlePinLocation = () => {
     if (navigator.geolocation) {
@@ -90,7 +90,20 @@ const CartDrawer = () => {
         // Backup failed silently — order is in DB
       }
 
-      setOrderResult({ orderNumber: order.order_number });
+      // Trigger notification edge function
+      let trackingUrl = `/track/${order.order_number}`;
+      let customerWhatsappLink: string | null = null;
+      try {
+        const { data: notifData } = await supabase.functions.invoke("notify-order", {
+          body: { orderId: order.id },
+        });
+        if (notifData?.trackingUrl) trackingUrl = notifData.trackingUrl;
+        if (notifData?.customerWhatsappLink) customerWhatsappLink = notifData.customerWhatsappLink;
+      } catch {
+        // Notification failed silently — order is placed
+      }
+
+      setOrderResult({ orderNumber: order.order_number, trackingUrl, customerWhatsappLink });
       toast.success(`Order #${order.order_number} placed successfully!`);
     } catch (err) {
       console.error(err);
@@ -125,7 +138,13 @@ const CartDrawer = () => {
             </div>
             <p className="text-sm text-muted-foreground">Save your order number to track your order.</p>
             <a
-              href={`https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
+              href={orderResult.trackingUrl}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-colors"
+            >
+              📦 Track Your Order Live
+            </a>
+            <a
+              href={orderResult.customerWhatsappLink || `https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"

@@ -8,6 +8,7 @@ import CartDrawer from "@/components/CartDrawer";
 import CartButton from "@/components/CartButton";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/track/:orderNumber" element={<TrackOrder />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

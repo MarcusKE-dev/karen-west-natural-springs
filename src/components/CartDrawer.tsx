@@ -138,7 +138,13 @@ const CartDrawer = () => {
             </div>
             <p className="text-sm text-muted-foreground">Save your order number to track your order.</p>
             <a
-              href={`https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
+              href={orderResult.trackingUrl}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-colors"
+            >
+              📦 Track Your Order Live
+            </a>
+            <a
+              href={orderResult.customerWhatsappLink || `https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"

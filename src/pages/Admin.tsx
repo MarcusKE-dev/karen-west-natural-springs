@@ -101,6 +101,16 @@ const Admin = () => {
 
   const updateStatus = async (orderId: string, status: string) => {
     await supabase.from("orders").update({ status: status as "pending" | "confirmed" | "delivered" | "cancelled" }).eq("id", orderId);
+    
+    // Notify customer of status change
+    try {
+      await supabase.functions.invoke("notify-order", {
+        body: { orderId, statusUpdate: true, newStatus: status },
+      });
+    } catch {
+      // Notification failed silently
+    }
+    
     fetchData();
   };
 

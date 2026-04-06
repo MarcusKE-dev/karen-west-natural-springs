@@ -18,7 +18,7 @@ const AboutSection = () => {
             Trusted by Communities Since Day One
           </h2>
           <p className="text-muted-foreground leading-relaxed text-lg">
-            Karen West Natural Spring was founded with a single mission: to provide safe, clean, and affordable water to every home, business, and institution in the region. Based in Karen, Nairobi, we source our water from natural springs and treat it through a rigorous 5-step purification process — including sand and carbon filtration, micro filtration, reverse osmosis, and ultraviolet treatment — ensuring every drop meets the highest quality standards.
+            Karen West Natural Spring was founded with a single mission: to provide safe, clean, and affordable water to every home, business, and institution in the region. Based in Ngong, we source our water from natural springs and treat it through a rigorous 5-step purification process — including sand and carbon filtration, micro filtration, reverse osmosis, and ultraviolet treatment — ensuring every drop meets the highest quality standards.
           </p>
           <div className="mt-8 p-6 rounded-xl bg-aqua-light border border-primary/10">
             <p className="font-display text-lg font-semibold text-navy italic">

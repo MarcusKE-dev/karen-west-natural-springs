@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, ShoppingCart } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
+import { Menu, X, Phone, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const { totalItems, setIsCartOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [trackInput, setTrackInput] = useState("");
+  const [showTrackInput, setShowTrackInput] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -20,6 +22,16 @@ const Header = () => {
     { label: "Bulk Transport", href: "#transport" },
     { label: "Contact", href: "#contact" },
   ];
+
+  const handleTrackOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = trackInput.trim().toUpperCase();
+    if (trimmed) {
+      navigate(`/track/${trimmed}`);
+      setShowTrackInput(false);
+      setTrackInput("");
+    }
+  };
 
   return (
     <header
@@ -51,18 +63,27 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="relative flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Cart
-            {totalItems > 0 && (
-              <span className="ml-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
-          </button>
+          {showTrackInput ? (
+            <form onSubmit={handleTrackOrder} className="flex items-center gap-1">
+              <input
+                autoFocus
+                placeholder="KW-XXXXXXXX-XXXX"
+                value={trackInput}
+                onChange={(e) => setTrackInput(e.target.value)}
+                className="w-40 px-3 py-1.5 rounded-full border border-input bg-background text-foreground text-xs placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+              />
+              <button type="submit" className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold">Go</button>
+              <button type="button" onClick={() => setShowTrackInput(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+            </form>
+          ) : (
+            <button
+              onClick={() => setShowTrackInput(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              Track Order
+            </button>
+          )}
           <a
             href="tel:+254717630186"
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
@@ -96,6 +117,17 @@ const Header = () => {
                 {link.label}
               </a>
             ))}
+            <form onSubmit={(e) => { handleTrackOrder(e); setMobileOpen(false); }} className="flex items-center gap-2 mt-2 px-3">
+              <input
+                placeholder="Track Order (e.g. KW-...)"
+                value={trackInput}
+                onChange={(e) => setTrackInput(e.target.value)}
+                className="flex-1 px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground"
+              />
+              <button type="submit" className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
+                <Search className="w-4 h-4" />
+              </button>
+            </form>
             <a
               href="tel:+254717630186"
               className="flex items-center gap-2 text-sm font-semibold text-primary mt-2 px-3 py-3 bg-primary/10 rounded-lg"

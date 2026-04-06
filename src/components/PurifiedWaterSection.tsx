@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShoppingCart, Droplets, MapPin, Package } from "lucide-react";
+import { ShoppingCart, Droplets, Package } from "lucide-react";
 import pack500ml from "@/assets/pack-500ml.png";
 import pack1litre from "@/assets/pack-1litre.png";
 import bottle5l from "@/assets/bottle-5l.png";
@@ -27,6 +27,11 @@ const bottledRefillProducts = [
   { name: "10 Litre Bottle", price: 300, image: bottle10l },
   { name: "20 Litre Soft Bottle", price: 500, image: bottle20lSoft },
   { name: "20 Litre Hard Bottle", price: 1500, image: bottle20lHard },
+];
+
+const occasions = [
+  "Weddings", "Graduations", "Seminars", "Conferences", "Birthdays",
+  "Corporate Events", "Church Events", "Baby Showers",
 ];
 
 const PurifiedWaterSection = () => {
@@ -179,29 +184,44 @@ const PurifiedWaterSection = () => {
 
         {/* Customized Water Bottles */}
         <div className="mb-16">
-          <div className="bg-gradient-to-br from-navy via-primary/90 to-navy rounded-2xl p-8 sm:p-10 shadow-2xl text-navy-foreground relative overflow-hidden">
+          <div className="bg-gradient-to-br from-navy via-primary/90 to-navy rounded-2xl shadow-2xl relative overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-10 right-10 w-40 h-40 rounded-full bg-accent blur-3xl" />
               <div className="absolute bottom-10 left-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
             </div>
-            <div className="relative">
-              <h3 className="text-2xl md:text-3xl font-display font-bold mb-4">
-                🎉 Customized Bottled Water for Your Special Event
+            <div className="relative p-8 sm:p-10 text-navy-foreground">
+              <h3 className="text-2xl md:text-3xl font-display font-bold mb-3">
+                Customized Bottled Water for Your Special Event
               </h3>
-              <p className="text-navy-foreground/90 text-base md:text-lg mb-6 leading-relaxed">
-                Turn every celebration into a branded experience. At Karen West Natural Spring, we design and package premium purified water with custom labels tailored to your event.
+              <p className="text-navy-foreground/90 text-base md:text-lg mb-6 leading-relaxed max-w-2xl">
+                Turn every celebration into a branded experience. At Karen West Natural Spring, we design and package premium purified water with custom labels tailored to your event — perfect for making your occasion memorable and refreshing.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+
+              <div className="mb-6">
+                <p className="text-sm font-semibold text-accent mb-3">Perfect for:</p>
+                <div className="flex flex-wrap gap-2">
+                  {occasions.map((occasion) => (
+                    <span
+                      key={occasion}
+                      className="px-4 py-2 rounded-full bg-navy-foreground/15 backdrop-blur-sm text-sm font-medium text-navy-foreground border border-navy-foreground/20 hover:bg-navy-foreground/25 transition-colors"
+                    >
+                      {occasion}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Clean, high-quality purified water</div>
-                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Custom-designed labels</div>
+                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Custom-designed labels with your branding</div>
                 <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Bulk orders for any event size</div>
-                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Fast, reliable delivery</div>
+                <div className="flex items-center gap-2 text-sm font-medium"><span className="text-accent">✔</span> Fast, reliable delivery across Ngong</div>
               </div>
               <a
                 href="#contact"
                 className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-card text-primary shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
               >
-                Order Your Customized Bottles Today
+                Get a Quote for Your Event
               </a>
             </div>
           </div>

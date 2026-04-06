@@ -6,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 const BulkTransportSection = () => {
   const [capacity, setCapacity] = useState("10000");
-  const [form, setForm] = useState({ location: "", amount: "", name: "", phone: "" });
+  const [form, setForm] = useState({ location: "", amount: "", name: "", phone: "", email: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [lastOrderNumber, setLastOrderNumber] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,30 +20,39 @@ const BulkTransportSection = () => {
         .insert({
           customer_name: form.name,
           phone: form.phone,
+          customer_email: form.email || null,
           location: form.location || null,
           instructions: `Bulk transport: ${capacity}L truck, Amount: ${form.amount || capacity}L`,
           total_amount: 0,
           order_number: "temp",
         } as any)
-        .select("order_number")
+        .select("id, order_number")
         .single();
 
       if (error) throw error;
 
-      // Insert order item
-      if (order) {
-        await supabase.from("order_items").insert({
-          order_id: order.order_number ? undefined : undefined,
-          product_name: `Bulk Water Transport (${capacity}L Truck)`,
-          product_type: "truck",
-          quantity: 1,
-          unit_price: 0,
-          total_price: 0,
-        } as any);
+      // Insert order item with the correct order_id
+      await supabase.from("order_items").insert({
+        order_id: order.id,
+        product_name: `Bulk Water Transport (${capacity}L Truck)`,
+        product_type: "truck",
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+
+      // Trigger notification edge function
+      try {
+        await supabase.functions.invoke("notify-order", {
+          body: { orderId: order.id },
+        });
+      } catch {
+        // Notification failed silently
       }
 
-      toast.success(`Transport request submitted! Order: ${order?.order_number}`);
-      setForm({ location: "", amount: "", name: "", phone: "" });
+      setLastOrderNumber(order.order_number);
+      toast.success(`Transport request submitted! Order: ${order.order_number}`);
+      setForm({ location: "", amount: "", name: "", phone: "", email: "" });
     } catch (err) {
       console.error(err);
       toast.error("Failed to submit. Please try again.");
@@ -75,7 +85,7 @@ const BulkTransportSection = () => {
           </span>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-4">Bulk Soft Water Transportation</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-base md:text-lg">
-            We supply soft water using our fleet of water trucks for institutions, construction sites, farms, and other water businesses.
+            We supply soft water using our fleet of water trucks for institutions, construction sites, farms, and other water businesses across Ngong and surrounding areas.
           </p>
         </div>
 
@@ -116,6 +126,7 @@ const BulkTransportSection = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <input required placeholder="Your Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <input required placeholder="Phone Number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              <input type="email" placeholder="Email (optional — get order updates)" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Capacity</label>
                 <select value={capacity} onChange={(e) => setCapacity(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
@@ -137,6 +148,19 @@ const BulkTransportSection = () => {
                 {submitting ? "Submitting..." : "Request Transport"}
               </button>
             </form>
+
+            {lastOrderNumber && (
+              <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 text-center">
+                <p className="text-sm text-muted-foreground mb-1">Your order number:</p>
+                <p className="text-lg font-bold text-primary font-mono">{lastOrderNumber}</p>
+                <a
+                  href={`/track/${lastOrderNumber}`}
+                  className="inline-flex items-center justify-center gap-2 mt-3 px-6 py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
+                >
+                  📦 Track Order
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>

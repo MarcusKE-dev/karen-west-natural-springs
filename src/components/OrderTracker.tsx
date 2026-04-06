@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Package, Clock, CheckCircle, XCircle, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,8 +22,15 @@ const statusConfig: Record<string, { icon: React.ReactNode; label: string; color
 const OrderTracker = () => {
   const [orderNumber, setOrderNumber] = useState("");
   const [order, setOrder] = useState<OrderData | null>(null);
+  const [recentOrder, setRecentOrder] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Check localStorage for most recent order
+  useEffect(() => {
+    const recent = localStorage.getItem("kw-last-order");
+    if (recent) setRecentOrder(recent);
+  }, []);
 
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +62,18 @@ const OrderTracker = () => {
   return (
     <div className="bg-card rounded-2xl shadow-md border border-border p-6 max-w-md mx-auto">
       <h3 className="text-lg font-display font-bold text-foreground mb-4 text-center">Track Your Order</h3>
+
+      {recentOrder && (
+        <div className="mb-4 p-3 rounded-xl bg-primary/5 border border-primary/15 text-center">
+          <p className="text-xs text-muted-foreground mb-1">Your recent order:</p>
+          <button
+            onClick={() => navigate(`/track/${recentOrder}`)}
+            className="text-sm font-bold text-primary hover:underline"
+          >
+            {recentOrder} → Track Now
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleTrack} className="flex gap-2 mb-4">
         <input
@@ -101,7 +120,6 @@ const OrderTracker = () => {
             <span className="text-sm text-foreground">{new Date(order.created_at).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</span>
           </div>
 
-          {/* Full tracking page button */}
           <button
             onClick={goToFullTracking}
             className="w-full mt-2 py-3 rounded-xl bg-water-gradient text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"

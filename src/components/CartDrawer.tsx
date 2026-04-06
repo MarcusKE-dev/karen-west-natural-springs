@@ -43,7 +43,6 @@ const CartDrawer = () => {
     setIsSubmitting(true);
 
     try {
-      // Insert order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -60,7 +59,6 @@ const CartDrawer = () => {
 
       if (orderError) throw orderError;
 
-      // Insert order items
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_name: item.name,
@@ -73,7 +71,10 @@ const CartDrawer = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // Also send to Formspree as backup
+      // Save to localStorage for recent order tracking
+      localStorage.setItem("kw-last-order", order.order_number);
+
+      // Formspree backup
       try {
         const formData = new FormData();
         formData.append("Order Number", order.order_number);
@@ -87,9 +88,7 @@ const CartDrawer = () => {
           headers: { Accept: "application/json" },
           body: formData,
         });
-      } catch {
-        // Backup failed silently — order is in DB
-      }
+      } catch { /* silent */ }
 
       // Trigger notification edge function
       let trackingUrl = `/track/${order.order_number}`;
@@ -100,9 +99,7 @@ const CartDrawer = () => {
         });
         if (notifData?.trackingUrl) trackingUrl = notifData.trackingUrl;
         if (notifData?.customerWhatsappLink) customerWhatsappLink = notifData.customerWhatsappLink;
-      } catch {
-        // Notification failed silently — order is placed
-      }
+      } catch { /* silent */ }
 
       setOrderResult({ orderNumber: order.order_number, trackingUrl, customerWhatsappLink });
       toast.success(`Order #${order.order_number} placed successfully!`);
@@ -145,7 +142,7 @@ const CartDrawer = () => {
               📦 Track Your Order Live
             </a>
             <a
-              href={orderResult.customerWhatsappLink || `https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
+              href={orderResult.customerWhatsappLink || `https://wa.me/254726732212?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"
@@ -164,7 +161,6 @@ const CartDrawer = () => {
           </div>
         ) : (
           <div className="mt-4 flex flex-col gap-4">
-            {/* Items */}
             <div className="space-y-3">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 bg-secondary/50 rounded-xl p-3">
@@ -189,13 +185,11 @@ const CartDrawer = () => {
               ))}
             </div>
 
-            {/* Total */}
             <div className="flex justify-between items-center py-3 border-t border-border">
               <span className="font-bold text-foreground">Total</span>
               <span className="text-xl font-bold text-primary">{totalAmount.toLocaleString()} KSH</span>
             </div>
 
-            {/* Checkout Form */}
             <form onSubmit={handlePlaceOrder} className="space-y-3">
               <p className="text-sm font-semibold text-foreground">Delivery Details</p>
               <input required placeholder="Your Name" value={checkoutForm.name} onChange={(e) => setCheckoutForm({ ...checkoutForm, name: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
@@ -216,7 +210,7 @@ const CartDrawer = () => {
               </button>
 
               <a
-                href={`https://wa.me/254705062319?text=${generateWhatsAppMessage()}`}
+                href={`https://wa.me/254726732212?text=${generateWhatsAppMessage()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-colors"

@@ -4,7 +4,7 @@ import { Package, Clock, CheckCircle, Truck, XCircle, ArrowLeft, MapPin, Message
 import { supabase } from "@/integrations/supabase/client";
 
 interface OrderData {
-  id: string;
+  id: order-tracker;
   order_number: string;
   customer_name: string;
   status: string;
@@ -17,7 +17,7 @@ interface OrderData {
 }
 
 interface OrderItem {
-  id: string;
+  id: order-tracker;
   product_name: string;
   product_type: string;
   quantity: number;
@@ -226,7 +226,7 @@ const TrackOrder = () => {
 
         {/* WhatsApp Contact */}
         <a
-          href={`https://wa.me/254726732212?text=${encodeURIComponent(`Hi, I'd like to check on my order #${order.order_number}`)}`}
+          href={`https://wa.me/254705062319?text=${encodeURIComponent(`Hi, I'd like to check on my order #${order.order_number}`)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"

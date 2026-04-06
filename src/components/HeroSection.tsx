@@ -33,11 +33,12 @@ const HeroSection = () => {
             Pure Water.<br />Reliable Supply.
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-navy-foreground/90 mb-10 leading-relaxed max-w-xl">
-            Karen West Natural Spring delivers purified drinking water and bulk soft water transportation across the region.
+            Karen West Natural Spring delivers purified drinking water and bulk soft water transportation across Ngong and surrounding areas.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="#purified"
+              className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold bg-water-gradient text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
             >
               Order Purified Water
             </a>

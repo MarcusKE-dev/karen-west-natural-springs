@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 export interface CartItem {
   id: string;
   name: string;
-  type: string; // "purified" | "packaged" | "truck"
+  type: string;
   quantity: number;
   unitPrice: number;
 }
@@ -54,7 +54,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setItems([...items, { ...item, id: crypto.randomUUID() }]);
     }
-    setIsCartOpen(true);
+    // Don't auto-open cart — only open on explicit cart button click
   };
 
   const updateQuantity = (id: string, quantity: number) => {

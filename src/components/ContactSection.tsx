@@ -12,7 +12,6 @@ const ContactSection = () => {
     setSubmitting(true);
 
     try {
-      // Save to database
       const { error: dbError } = await supabase.from("messages").insert({
         name: form.name,
         phone: form.phone || null,
@@ -22,7 +21,6 @@ const ContactSection = () => {
 
       if (dbError) throw dbError;
 
-      // Also send to Formspree as backup
       try {
         const formData = new FormData();
         formData.append("name", form.name);
@@ -35,7 +33,7 @@ const ContactSection = () => {
           body: formData,
         });
       } catch {
-        // Formspree backup failed silently — message is in DB
+        // Formspree backup failed silently
       }
 
       toast.success("Message sent! We'll get back to you soon.");
@@ -75,7 +73,7 @@ const ContactSection = () => {
                   <MapPin className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">Karen, Nairobi</p>
+                  <p className="font-semibold text-foreground">Ngong & Surrounding Areas</p>
                   <p className="text-sm text-muted-foreground">P.O. Box 24563-00502, Nairobi</p>
                 </div>
               </div>
@@ -83,7 +81,7 @@ const ContactSection = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5 text-primary" />
                 </div>
-                <p className="font-semibold text-foreground">Serving Nairobi & surrounding areas</p>
+                <p className="font-semibold text-foreground">Serving Ngong & surrounding areas</p>
               </div>
             </div>
 
@@ -96,8 +94,17 @@ const ContactSection = () => {
               </a>
             </div>
 
-            <div className="mt-8 rounded-xl overflow-hidden border border-border bg-secondary h-48 flex items-center justify-center">
-              <p className="text-muted-foreground text-sm">📍 Google Maps — Karen, Nairobi</p>
+            <div className="mt-8 rounded-xl overflow-hidden border border-border">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!3m2!1sen!2ske!4v1775456966456!5m2!1sen!2ske!6m8!1m7!1siNBcGKX0Uu26lcpCXZdMDA!2m2!1d-1.340593671310081!2d36.6833492138066!3f95.41001!4f0!5f0.7820865974627469"
+                width="100%"
+                height="250"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Karen West Natural Spring Location"
+              />
             </div>
           </div>
 

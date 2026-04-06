@@ -8,7 +8,7 @@ const Footer = () => {
           <div>
             <h3 className="font-display text-xl font-bold text-navy-foreground mb-3">Karen West Natural Spring</h3>
             <p className="text-navy-foreground/70 text-sm leading-relaxed">
-              Providing safe, affordable, and accessible water solutions with integrity and reliability since establishment.
+              Providing safe, affordable, and accessible water solutions with integrity and reliability across Ngong and surrounding areas.
             </p>
           </div>
           <div>
@@ -24,7 +24,8 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-navy-foreground mb-3">Contact</h4>
             <p className="text-sm text-navy-foreground/70 mb-1">+254 726 732 212</p>
-            <p className="text-sm text-navy-foreground/70 mb-4">+254 717 630 186</p>
+            <p className="text-sm text-navy-foreground/70 mb-1">+254 717 630 186</p>
+            <p className="text-sm text-navy-foreground/70 mb-4">Ngong & Surrounding Areas · P.O. Box 24563-00502, Nairobi</p>
             <div className="flex gap-3">
               <a
                 href="tel:+254726732212"

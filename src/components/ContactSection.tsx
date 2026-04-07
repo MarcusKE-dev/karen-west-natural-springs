@@ -12,17 +12,23 @@ const ContactSection = () => {
     setSubmitting(true);
 
     try {
-      const { data: dbMsg, error: dbError } = await supabase.from("messages").insert({
-        name: form.name,
-        phone: form.phone || null,
-        email: form.email || null,
-        message: form.message,
-      }).select("id").single();
+      const { data: dbMsg, error: dbError } = await supabase
+        .from("messages")
+        .insert({
+          name: form.name,
+          phone: form.phone || null,
+          email: form.email || null,
+          message: form.message,
+        })
+        .select("id")
+        .single();
 
       if (dbError) throw dbError;
 
-      // Fire-and-forget: notify business owner by email
-      supabase.functions.invoke("notify-contact", { body: { messageId: dbMsg.id } }).catch(() => {});
+      // Notify business owner by email
+      supabase.functions
+        .invoke("notify-contact", { body: { messageId: dbMsg.id } })
+        .catch(() => { });
 
       toast.success("Message sent! We'll get back to you soon.");
       setForm({ name: "", phone: "", email: "", message: "" });

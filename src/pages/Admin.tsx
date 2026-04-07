@@ -244,7 +244,7 @@ const Admin = () => {
                         <p><span className="font-medium">Phone:</span> {order.phone}</p>
                         {order.location && <p><span className="font-medium">Location:</span> {order.location}</p>}
                         {order.instructions && <p className="sm:col-span-2"><span className="font-medium">Instructions:</span> {order.instructions}</p>}
-                        <p><span className="font-medium">Total:</span> {order.total_amount} KSH</p>
+                        <p><span className="font-medium">Total:</span> {order.total_amount > 0 ? `${order.total_amount} KSH` : "As negotiated"}</p>
                       </div>
                       <div className="flex flex-wrap gap-2 pt-1">
                         {(["pending", "confirmed", "delivered", "cancelled"] as const).map((s) => (

@@ -21,7 +21,7 @@ const Index = () => {
       <TestimonialsSection />
       <ContactSection />
       {/* Order Tracking Section */}
-      <section className="py-16 bg-background">
+      <section id="order-tracker" className="py-16 bg-background">
         <div className="section-container">
           <div className="text-center mb-8">
             <span className="text-sm font-semibold tracking-widest uppercase text-primary mb-3 block">Order Status</span>

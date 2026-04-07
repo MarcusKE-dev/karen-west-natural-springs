@@ -19,6 +19,7 @@ const Footer = () => {
               <a href="#purified" className="text-sm text-navy-foreground/70 hover:text-navy-foreground transition-colors">Purified Water</a>
               <a href="#transport" className="text-sm text-navy-foreground/70 hover:text-navy-foreground transition-colors">Bulk Transport</a>
               <a href="#contact" className="text-sm text-navy-foreground/70 hover:text-navy-foreground transition-colors">Contact</a>
+              <a href="#order-tracker" className="text-sm text-navy-foreground/70 hover:text-navy-foreground transition-colors">Track Order</a>
             </div>
           </div>
           <div>
@@ -28,13 +29,13 @@ const Footer = () => {
             <p className="text-sm text-navy-foreground/70 mb-4">Ngong & Surrounding Areas · P.O. Box 24563-00502, Nairobi</p>
             <div className="flex gap-3">
               <a
-                href="tel:+254726732212"
+                href="tel:+254705062319"
                 className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"
               >
                 <Phone className="w-4 h-4 text-navy-foreground" />
               </a>
               <a
-                href="https://wa.me/254726732212"
+                href="https://wa.me/254705062319"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"

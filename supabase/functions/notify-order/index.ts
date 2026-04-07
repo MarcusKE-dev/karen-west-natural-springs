@@ -13,7 +13,7 @@ const BodySchema = z.object({
 });
 
 const BUSINESS_EMAIL = "marcuske001@gmail.com";
-const BUSINESS_WHATSAPP = "254726732212";
+const BUSINESS_WHATSAPP = "254705062319";
 
 async function sendEmail(to: string, subject: string, html: string) {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -25,19 +25,31 @@ async function sendEmail(to: string, subject: string, html: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "Karen West Natural Spring <orders@karenwestwater.co.ke>",
+      from: "Karen West Natural Spring <onboarding@resend.dev>",
       to: [to],
       subject,
       html,
     }),
   });
-  return res.ok ? { success: true } : { error: await res.text() };
+  const body = await res.text();
+  console.log(`Email to ${to}: ${res.status} ${body}`);
+  return res.ok ? { success: true } : { error: body };
+}
+
+function formatTime(dateStr: string) {
+  // Format in East Africa Time (UTC+3)
+  const d = new Date(dateStr);
+  return d.toLocaleString("en-KE", { timeZone: "Africa/Nairobi", dateStyle: "medium", timeStyle: "short" });
 }
 
 function customerEmailHtml(order: any, items: any[], trackingUrl: string) {
+  const isTruck = items.some((i: any) => i.product_type === "truck");
   const rows = items.map((i: any) =>
-    `<tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151">${i.product_name} x${i.quantity}</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;color:#065f46">${Number(i.total_price).toLocaleString()} KSH</td></tr>`
+    `<tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151">${i.product_name} x${i.quantity}</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;color:#065f46">${isTruck ? "As negotiated" : Number(i.total_price).toLocaleString() + " KSH"}</td></tr>`
   ).join("");
+  const totalRow = isTruck
+    ? `<tr><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#111827">Total</td><td style="padding:12px 0 0;text-align:right;font-weight:700;font-size:16px;color:#065f46">Price as negotiated</td></tr>`
+    : `<tr><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#111827">Total</td><td style="padding:12px 0 0;text-align:right;font-weight:700;font-size:16px;color:#065f46">${Number(order.total_amount).toLocaleString()} KSH</td></tr>`;
   return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif">
   <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#065f46;padding:28px 32px;text-align:center">
@@ -50,11 +62,12 @@ function customerEmailHtml(order: any, items: any[], trackingUrl: string) {
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;text-align:center;margin-bottom:24px">
         <p style="margin:0 0 4px;font-size:12px;color:#6b7280;text-transform:uppercase">Order Number</p>
         <p style="margin:0;font-size:28px;font-weight:700;color:#065f46">${order.order_number}</p>
+        <p style="margin:4px 0 0;font-size:12px;color:#9ca3af">${formatTime(order.created_at)}</p>
       </div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
         <tr><th style="text-align:left;font-size:12px;color:#9ca3af;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #e5e7eb">Item</th><th style="text-align:right;font-size:12px;color:#9ca3af;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #e5e7eb">Amount</th></tr>
         ${rows}
-        <tr><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#111827">Total</td><td style="padding:12px 0 0;text-align:right;font-weight:700;font-size:16px;color:#065f46">${Number(order.total_amount).toLocaleString()} KSH</td></tr>
+        ${totalRow}
       </table>
       ${order.location ? `<p style="margin:0 0 6px;font-size:13px;color:#6b7280">📍 <strong>Delivery to:</strong> ${order.location}</p>` : ""}
       ${order.instructions ? `<p style="margin:0 0 20px;font-size:13px;color:#6b7280">📝 <strong>Instructions:</strong> ${order.instructions}</p>` : "<div style='margin-bottom:20px'></div>"}
@@ -70,14 +83,17 @@ function customerEmailHtml(order: any, items: any[], trackingUrl: string) {
 }
 
 function businessEmailHtml(order: any, items: any[], trackingUrl: string) {
+  const isTruck = items.some((i: any) => i.product_type === "truck");
   const rows = items.map((i: any) =>
-    `<tr><td style="padding:6px 0;border-bottom:1px solid #e5e7eb;color:#374151">${i.product_name} x${i.quantity}</td><td style="padding:6px 0;border-bottom:1px solid #e5e7eb;text-align:right;color:#374151">${Number(i.total_price).toLocaleString()} KSH</td></tr>`
+    `<tr><td style="padding:6px 0;border-bottom:1px solid #e5e7eb;color:#374151">${i.product_name} x${i.quantity}</td><td style="padding:6px 0;border-bottom:1px solid #e5e7eb;text-align:right;color:#374151">${isTruck ? "As negotiated" : Number(i.total_price).toLocaleString() + " KSH"}</td></tr>`
   ).join("");
-  const orderType = items.some((i: any) => i.product_type === "truck") ? "🚛 BULK TRANSPORT" : "💧 PURIFIED WATER";
+  const orderType = isTruck ? "🚛 BULK TRANSPORT" : "💧 PURIFIED WATER";
+  const totalDisplay = isTruck ? "Price as negotiated" : `${Number(order.total_amount).toLocaleString()} KSH`;
   return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif">
   <div style="max-width:520px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#1e3a5f;padding:20px 28px">
       <h1 style="margin:0;color:#fff;font-size:18px">${orderType} — New Order ${order.order_number}</h1>
+      <p style="margin:4px 0 0;color:#93c5fd;font-size:12px">${formatTime(order.created_at)}</p>
     </div>
     <div style="padding:24px 28px">
       <table style="width:100%;font-size:14px;margin-bottom:20px">
@@ -86,7 +102,7 @@ function businessEmailHtml(order: any, items: any[], trackingUrl: string) {
         ${order.customer_email ? `<tr><td style="color:#6b7280;padding:4px 0">Email</td><td style="color:#111827">${order.customer_email}</td></tr>` : ""}
         ${order.location ? `<tr><td style="color:#6b7280;padding:4px 0">Location</td><td style="color:#111827">${order.location}</td></tr>` : ""}
         ${order.instructions ? `<tr><td style="color:#6b7280;padding:4px 0">Notes</td><td style="color:#111827">${order.instructions}</td></tr>` : ""}
-        <tr><td style="color:#6b7280;padding:4px 0">Total</td><td style="font-weight:700;font-size:16px;color:#065f46">${Number(order.total_amount).toLocaleString()} KSH</td></tr>
+        <tr><td style="color:#6b7280;padding:4px 0">Total</td><td style="font-weight:700;font-size:16px;color:#065f46">${totalDisplay}</td></tr>
       </table>
       <table style="width:100%;border-collapse:collapse;margin-bottom:20px">${rows}</table>
       <a href="${trackingUrl}" style="background:#065f46;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">View Order Tracking Page</a>
@@ -136,10 +152,10 @@ Deno.serve(async (req) => {
 
     const siteUrl = Deno.env.get("SITE_URL") || "https://karen-west-natural-springs.lovable.app";
     const trackingUrl = `${siteUrl}/track/${order.order_number}`;
+    const isTruck = (items ?? []).some((i: any) => i.product_type === "truck");
 
     // === STATUS UPDATE FLOW ===
     if (statusUpdate && newStatus) {
-      // Send status update email to customer
       if (order.customer_email) {
         await sendEmail(
           order.customer_email,
@@ -148,7 +164,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Send WhatsApp status update to customer
       const phone = order.phone?.replace(/\D/g, "");
       const normalised = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
       const statusLabels: Record<string, string> = { pending: "Placed", confirmed: "Confirmed ✅", delivered: "Delivered 🎉", cancelled: "Cancelled ❌" };
@@ -171,19 +186,33 @@ Deno.serve(async (req) => {
     // Build customer WhatsApp message
     const phone = order.phone?.replace(/\D/g, "");
     const normalised = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
+    const orderType = isTruck ? "🚛 BULK TRANSPORT" : "💧 WATER ORDER";
     let customerMsg = `Order Confirmed!\n\nHi ${order.customer_name}, your order ${order.order_number} has been received!\n\n`;
-    (items ?? []).forEach((i: any) => { customerMsg += `• ${i.product_name} x${i.quantity} — ${Number(i.total_price).toLocaleString()} KSH\n`; });
-    customerMsg += `\nTotal: ${Number(order.total_amount).toLocaleString()} KSH\n\nTrack your order:\n${trackingUrl}\n\nThank you for choosing Karen West Natural Spring!`;
+    (items ?? []).forEach((i: any) => {
+      customerMsg += isTruck
+        ? `• ${i.product_name} x${i.quantity} — Price as negotiated\n`
+        : `• ${i.product_name} x${i.quantity} — ${Number(i.total_price).toLocaleString()} KSH\n`;
+    });
+    customerMsg += isTruck
+      ? `\nTotal: Price as negotiated\n`
+      : `\nTotal: ${Number(order.total_amount).toLocaleString()} KSH\n`;
+    customerMsg += `\nTrack your order:\n${trackingUrl}\n\nThank you for choosing Karen West Natural Spring!`;
     const customerWhatsappLink = normalised ? `https://wa.me/${normalised}?text=${encodeURIComponent(customerMsg)}` : null;
 
     // Build owner WhatsApp notification
-    const orderType = (items ?? []).some((i: any) => i.product_type === "truck") ? "🚛 BULK TRANSPORT" : "💧 WATER ORDER";
     let ownerMsg = `${orderType} — New Order!\n\nOrder: ${order.order_number}\nCustomer: ${order.customer_name}\nPhone: ${order.phone}\n`;
     if (order.location) ownerMsg += `Location: ${order.location}\n`;
     if (order.instructions) ownerMsg += `Notes: ${order.instructions}\n`;
     ownerMsg += `\nItems:\n`;
-    (items ?? []).forEach((i: any) => { ownerMsg += `• ${i.product_name} x${i.quantity} — ${Number(i.total_price).toLocaleString()} KSH\n`; });
-    ownerMsg += `\nTotal: ${Number(order.total_amount).toLocaleString()} KSH\n\nTrack: ${trackingUrl}`;
+    (items ?? []).forEach((i: any) => {
+      ownerMsg += isTruck
+        ? `• ${i.product_name} x${i.quantity} — Price as negotiated\n`
+        : `• ${i.product_name} x${i.quantity} — ${Number(i.total_price).toLocaleString()} KSH\n`;
+    });
+    ownerMsg += isTruck
+      ? `\nTotal: Price as negotiated\n`
+      : `\nTotal: ${Number(order.total_amount).toLocaleString()} KSH\n`;
+    ownerMsg += `\nTrack: ${trackingUrl}`;
     const ownerWhatsappLink = `https://wa.me/${BUSINESS_WHATSAPP}?text=${encodeURIComponent(ownerMsg)}`;
 
     return new Response(JSON.stringify({ success: true, trackingUrl, customerWhatsappLink, ownerWhatsappLink }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });

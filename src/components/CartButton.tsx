@@ -19,7 +19,7 @@ const CartButton = () => {
         )}
       </button>
       <a
-        href="https://wa.me/254726732212"
+        href="https://wa.me/254705062319"
         target="_blank"
         rel="noopener noreferrer"
         className="w-14 h-14 rounded-full bg-green-500 text-white shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center"

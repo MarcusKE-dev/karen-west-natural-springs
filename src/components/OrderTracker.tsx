@@ -26,7 +26,6 @@ const OrderTracker = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check localStorage for most recent order
   useEffect(() => {
     const recent = localStorage.getItem("kw-last-order");
     if (recent) setRecentOrder(recent);
@@ -111,10 +110,12 @@ const OrderTracker = () => {
               {status.icon} {status.label}
             </span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Total</span>
-            <span className="font-bold text-primary">{Number(order.total_amount).toLocaleString()} KSH</span>
-          </div>
+          {order.total_amount > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="font-bold text-primary">{Number(order.total_amount).toLocaleString()} KSH</span>
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Date</span>
             <span className="text-sm text-foreground">{new Date(order.created_at).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</span>

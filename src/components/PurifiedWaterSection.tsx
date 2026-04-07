@@ -119,7 +119,7 @@ const PurifiedWaterSection = () => {
             {bottledRefillProducts.map((product, i) => (
               <div key={i} className="bg-card rounded-2xl shadow-md border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div className="aspect-[3/4] bg-gradient-to-b from-secondary to-background overflow-hidden relative">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
                 <div className="p-4">
                   <h4 className="font-semibold text-foreground text-sm mb-2 line-clamp-2">{product.name}</h4>
@@ -157,7 +157,7 @@ const PurifiedWaterSection = () => {
             {packagedProducts.map((product, i) => (
               <div key={i} className="bg-card rounded-2xl shadow-md border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div className="aspect-[4/3] bg-gradient-to-b from-secondary to-background overflow-hidden">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6">
                   <h4 className="font-semibold text-foreground text-lg">{product.name}</h4>

@@ -33,6 +33,19 @@ const Header = () => {
     }
   };
 
+  const scrollToTracker = () => {
+    setMobileOpen(false);
+    const el = document.getElementById("order-tracker");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("order-tracker")?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -42,14 +55,12 @@ const Header = () => {
       }`}
     >
       <div className="section-container flex items-center justify-between h-16 md:h-20">
-        {/* Logo area */}
         <a href="#home" className="flex items-center gap-2 shrink-0">
           <span className="text-sm md:text-base font-display font-bold text-primary tracking-wide">
             Karen West Natural Spring
           </span>
         </a>
 
-        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           {navLinks.map((link) => (
             <a
@@ -77,7 +88,7 @@ const Header = () => {
             </form>
           ) : (
             <button
-              onClick={() => setShowTrackInput(true)}
+              onClick={scrollToTracker}
               className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
             >
               <Search className="w-4 h-4" />
@@ -93,7 +104,6 @@ const Header = () => {
           </a>
         </div>
 
-        {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden p-2 text-foreground"
@@ -103,7 +113,6 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-card border-t border-border animate-fade-in-up">
           <div className="section-container py-4 flex flex-col gap-1">
@@ -117,17 +126,12 @@ const Header = () => {
                 {link.label}
               </a>
             ))}
-            <form onSubmit={(e) => { handleTrackOrder(e); setMobileOpen(false); }} className="flex items-center gap-2 mt-2 px-3">
-              <input
-                placeholder="Track Order (e.g. KW-...)"
-                value={trackInput}
-                onChange={(e) => setTrackInput(e.target.value)}
-                className="flex-1 px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground"
-              />
-              <button type="submit" className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
-                <Search className="w-4 h-4" />
-              </button>
-            </form>
+            <button
+              onClick={scrollToTracker}
+              className="text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 py-3 px-3 rounded-lg transition-colors text-left flex items-center gap-2"
+            >
+              <Search className="w-4 h-4" /> Track Order
+            </button>
             <a
               href="tel:+254717630186"
               className="flex items-center gap-2 text-sm font-semibold text-primary mt-2 px-3 py-3 bg-primary/10 rounded-lg"

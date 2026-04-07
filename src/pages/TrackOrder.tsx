@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Package, Clock, CheckCircle, Truck, XCircle, ArrowLeft, MapPin, MessageCircle } from "lucide-react";
+import { Package, Clock, CheckCircle, XCircle, ArrowLeft, MapPin, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface OrderData {
-  id: order-tracker;
+  id: string;
   order_number: string;
   customer_name: string;
   status: string;
@@ -17,7 +17,7 @@ interface OrderData {
 }
 
 interface OrderItem {
-  id: order-tracker;
+  id: string;
   product_name: string;
   product_type: string;
   quantity: number;
@@ -67,7 +67,6 @@ const TrackOrder = () => {
     if (!orderNumber) return;
     fetchOrder(orderNumber);
 
-    // Subscribe to real-time updates
     const channel = supabase
       .channel(`order-${orderNumber}`)
       .on(
@@ -114,10 +113,10 @@ const TrackOrder = () => {
 
   const currentIdx = statusIndex[order.status] ?? 0;
   const isCancelled = order.status === "cancelled";
+  const isTruckOrder = items.some((i) => i.product_type === "truck");
 
   return (
     <div className="min-h-screen bg-secondary">
-      {/* Header */}
       <div className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -135,7 +134,6 @@ const TrackOrder = () => {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        {/* Order Number Card */}
         <div className="bg-card rounded-2xl shadow-md border border-border p-6 text-center">
           <p className="text-sm text-muted-foreground mb-1">Order Number</p>
           <p className="text-3xl font-display font-bold text-primary">{order.order_number}</p>
@@ -144,7 +142,6 @@ const TrackOrder = () => {
           </p>
         </div>
 
-        {/* Status Timeline */}
         {isCancelled ? (
           <div className="bg-destructive/10 rounded-2xl border border-destructive/30 p-6 text-center">
             <XCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
@@ -155,7 +152,6 @@ const TrackOrder = () => {
           <div className="bg-card rounded-2xl shadow-md border border-border p-6">
             <h2 className="text-sm font-semibold text-foreground mb-6">Delivery Progress</h2>
             <div className="flex items-start justify-between relative">
-              {/* Progress bar */}
               <div className="absolute top-5 left-[10%] right-[10%] h-1 bg-border rounded-full">
                 <div
                   className="h-full bg-primary rounded-full transition-all duration-700"
@@ -178,7 +174,6 @@ const TrackOrder = () => {
           </div>
         )}
 
-        {/* Order Details */}
         <div className="bg-card rounded-2xl shadow-md border border-border p-6 space-y-4">
           <h2 className="text-sm font-semibold text-foreground">Order Details</h2>
           <div className="space-y-2">
@@ -211,20 +206,25 @@ const TrackOrder = () => {
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="text-foreground">{item.product_name} × {item.quantity}</span>
-                    <span className="font-medium text-primary">{Number(item.total_price).toLocaleString()} KSH</span>
+                    <span className="font-medium text-primary">
+                      {isTruckOrder ? "As negotiated" : `${Number(item.total_price).toLocaleString()} KSH`}
+                    </span>
                   </div>
                 ))}
               </div>
-              <hr className="border-border" />
-              <div className="flex justify-between">
-                <span className="font-bold text-foreground">Total</span>
-                <span className="font-bold text-primary text-lg">{Number(order.total_amount).toLocaleString()} KSH</span>
-              </div>
+              {!isTruckOrder && (
+                <>
+                  <hr className="border-border" />
+                  <div className="flex justify-between">
+                    <span className="font-bold text-foreground">Total</span>
+                    <span className="font-bold text-primary text-lg">{Number(order.total_amount).toLocaleString()} KSH</span>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
 
-        {/* WhatsApp Contact */}
         <a
           href={`https://wa.me/254705062319?text=${encodeURIComponent(`Hi, I'd like to check on my order #${order.order_number}`)}`}
           target="_blank"

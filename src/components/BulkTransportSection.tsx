@@ -31,7 +31,6 @@ const BulkTransportSection = () => {
 
       if (error) throw error;
 
-      // Insert order item with the correct order_id
       await supabase.from("order_items").insert({
         order_id: order.id,
         product_name: `Bulk Water Transport (${capacity}L Truck)`,
@@ -41,6 +40,24 @@ const BulkTransportSection = () => {
         total_price: 0,
       });
 
+      // Formspree notification for water transport
+      try {
+        const formData = new FormData();
+        formData.append("Order Number", order.order_number);
+        formData.append("Order Type", "BULK WATER TRANSPORT");
+        formData.append("Customer", form.name);
+        formData.append("Phone", form.phone);
+        formData.append("Email", form.email || "Not provided");
+        formData.append("Location", form.location);
+        formData.append("Capacity", `${capacity}L Truck`);
+        formData.append("Amount Requested", form.amount || capacity + "L");
+        await fetch("https://formspree.io/f/meeplrnz", {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: formData,
+        });
+      } catch { /* silent */ }
+
       // Trigger notification edge function
       try {
         await supabase.functions.invoke("notify-order", {
@@ -49,6 +66,9 @@ const BulkTransportSection = () => {
       } catch {
         // Notification failed silently
       }
+
+      // Save to localStorage for recent order tracking
+      localStorage.setItem("kw-last-order", order.order_number);
 
       setLastOrderNumber(order.order_number);
       toast.success(`Transport request submitted! Order: ${order.order_number}`);
@@ -92,7 +112,7 @@ const BulkTransportSection = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           <div>
             <div className="rounded-2xl overflow-hidden shadow-xl mb-8 group">
-              <img src={waterTruck} alt="Karen West water truck" className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src={waterTruck} alt="Karen West water truck" loading="lazy" className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <button

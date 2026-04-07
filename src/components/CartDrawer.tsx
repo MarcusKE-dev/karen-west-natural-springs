@@ -71,24 +71,7 @@ const CartDrawer = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // Save to localStorage for recent order tracking
       localStorage.setItem("kw-last-order", order.order_number);
-
-      // Formspree backup
-      try {
-        const formData = new FormData();
-        formData.append("Order Number", order.order_number);
-        formData.append("Customer", checkoutForm.name);
-        formData.append("Phone", checkoutForm.phone);
-        formData.append("Location", checkoutForm.location);
-        formData.append("Total", `${totalAmount} KSH`);
-        formData.append("Items", items.map((i) => `${i.name} x${i.quantity}`).join(", "));
-        await fetch("https://formspree.io/f/meeplrnz", {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          body: formData,
-        });
-      } catch { /* silent */ }
 
       // Trigger notification edge function
       let trackingUrl = `/track/${order.order_number}`;
@@ -142,7 +125,7 @@ const CartDrawer = () => {
               📦 Track Your Order Live
             </a>
             <a
-              href={orderResult.customerWhatsappLink || `https://wa.me/254726732212?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
+              href={orderResult.customerWhatsappLink || `https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"
@@ -210,7 +193,7 @@ const CartDrawer = () => {
               </button>
 
               <a
-                href={`https://wa.me/254726732212?text=${generateWhatsAppMessage()}`}
+                href={`https://wa.me/254705062319?text=${generateWhatsAppMessage()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-colors"

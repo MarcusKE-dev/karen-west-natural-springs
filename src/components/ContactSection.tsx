@@ -12,29 +12,17 @@ const ContactSection = () => {
     setSubmitting(true);
 
     try {
-      const { error: dbError } = await supabase.from("messages").insert({
+      const { data: dbMsg, error: dbError } = await supabase.from("messages").insert({
         name: form.name,
         phone: form.phone || null,
         email: form.email || null,
         message: form.message,
-      });
+      }).select("id").single();
 
       if (dbError) throw dbError;
 
-      try {
-        const formData = new FormData();
-        formData.append("name", form.name);
-        formData.append("phone", form.phone);
-        formData.append("email", form.email);
-        formData.append("message", form.message);
-        await fetch("https://formspree.io/f/meeplrnz", {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          body: formData,
-        });
-      } catch {
-        // Formspree backup failed silently
-      }
+      // Fire-and-forget: notify business owner by email
+      supabase.functions.invoke("notify-contact", { body: { messageId: dbMsg.id } }).catch(() => {});
 
       toast.success("Message sent! We'll get back to you soon.");
       setForm({ name: "", phone: "", email: "", message: "" });
@@ -55,7 +43,6 @@ const ContactSection = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Info */}
           <div>
             <h3 className="text-xl font-display font-bold text-foreground mb-6">Reach Us Directly</h3>
             <div className="space-y-6 mb-8">
@@ -86,10 +73,10 @@ const ContactSection = () => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <a href="tel:+254726732212" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-water-gradient text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
+              <a href="tel:+254705062319" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-water-gradient text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
                 <Phone className="w-4 h-4" /> Call Now
               </a>
-              <a href="https://wa.me/254726732212" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-card border-2 border-primary text-primary font-semibold hover:bg-primary/5 transition-colors">
+              <a href="https://wa.me/254705062319" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-card border-2 border-primary text-primary font-semibold hover:bg-primary/5 transition-colors">
                 <MessageCircle className="w-4 h-4" /> WhatsApp
               </a>
             </div>
@@ -108,7 +95,6 @@ const ContactSection = () => {
             </div>
           </div>
 
-          {/* Form */}
           <div className="bg-card rounded-2xl shadow-md border border-border p-8">
             <h3 className="text-xl font-display font-bold text-foreground mb-6">Send a Message</h3>
             <form onSubmit={handleSubmit} className="space-y-4">

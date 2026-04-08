@@ -73,23 +73,6 @@ const CartDrawer = () => {
 
       localStorage.setItem("kw-last-order", order.order_number);
 
-      // Formspree backup
-      try {
-        const formData = new FormData();
-        formData.append("Order Number", order.order_number);
-        formData.append("Customer", checkoutForm.name);
-        formData.append("Phone", checkoutForm.phone);
-        formData.append("Email", checkoutForm.email || "Not provided");
-        formData.append("Location", checkoutForm.location);
-        formData.append("Total", `${totalAmount} KSH`);
-        formData.append("Items", items.map((i) => `${i.name} x${i.quantity}`).join(", "));
-        await fetch("https://formspree.io/f/meeplrnz", {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          body: formData,
-        });
-      } catch { /* silent */ }
-
       // Trigger notification edge function
       let trackingUrl = `/track/${order.order_number}`;
       let customerWhatsappLink: string | null = null;

@@ -40,24 +40,6 @@ const BulkTransportSection = () => {
         total_price: 0,
       });
 
-      // Formspree notification for water transport
-      try {
-        const formData = new FormData();
-        formData.append("Order Number", order.order_number);
-        formData.append("Order Type", "BULK WATER TRANSPORT");
-        formData.append("Customer", form.name);
-        formData.append("Phone", form.phone);
-        formData.append("Email", form.email || "Not provided");
-        formData.append("Location", form.location);
-        formData.append("Capacity", `${capacity}L Truck`);
-        formData.append("Amount Requested", form.amount || capacity + "L");
-        await fetch("https://formspree.io/f/meeplrnz", {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          body: formData,
-        });
-      } catch { /* silent */ }
-
       // Trigger notification edge function
       try {
         await supabase.functions.invoke("notify-order", {

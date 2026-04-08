@@ -26,6 +26,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: "Karen West Natural Spring <onboarding@resend.dev>",
+      reply_to: "karenwestsprings@gmail.com",
       to: [to],
       subject,
       html,

@@ -23,6 +23,7 @@ async function sendEmail(to: string, subject: string, html: string) {
         },
         body: JSON.stringify({
             from: "Karen West Natural Spring <onboarding@resend.dev>",
+            reply_to: "karenwestsprings@gmail.com",
             to: [to],
             subject,
             html,

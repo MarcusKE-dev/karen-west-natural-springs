@@ -12,7 +12,7 @@ const BodySchema = z.object({
   newStatus: z.string().optional(),
 });
 
-const BUSINESS_EMAIL = "marcuske001@gmail.com";
+const BUSINESS_EMAIL = "karenwestspring@gmail.com";
 const BUSINESS_WHATSAPP = "254705062319";
 
 async function sendEmail(to: string, subject: string, html: string) {

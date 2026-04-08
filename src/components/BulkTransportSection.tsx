@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Truck, MapPin } from "lucide-react";
-import waterTruck from "@/assets/water-truck.png";
+import waterTruck from "@/assets/water-truck.webp";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 

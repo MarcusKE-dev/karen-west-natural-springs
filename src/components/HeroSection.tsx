@@ -1,5 +1,5 @@
-import heroImage from "@/assets/hero-water.jpg";
-import logo from "@/assets/logo.png";
+import heroImage from "@/assets/hero-water.webp";
+import logo from "@/assets/logo.webp";
 
 const HeroSection = () => {
   return (

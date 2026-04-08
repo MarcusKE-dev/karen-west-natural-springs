@@ -6,20 +6,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BodySchema = z.object({ messageId: z.string().uuid() });
+const BodySchema = z.object({
+  orderId: z.string().uuid(),
+  statusUpdate: z.boolean().optional(),
+  newStatus: z.string().optional(),
+});
 
-<<<<<<< HEAD
-const BUSINESS_EMAIL = "marcuske001@gmail.com"; // ← swap to Karen West email once Resend domain is verified
-=======
 const BUSINESS_EMAIL = "marcuske001@gmail.com";
 const BUSINESS_WHATSAPP = "254705062319";
->>>>>>> e49264fdd27be9cb3ee30c52e1cea68e880244f6
 
 async function sendEmail(to: string, subject: string, html: string) {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   if (!RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY not set — skipping email");
-    return;
+    console.warn("RESEND_API_KEY not set — skipping email to", to);
+    return { error: "RESEND_API_KEY not set" };
   }
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -33,8 +33,6 @@ async function sendEmail(to: string, subject: string, html: string) {
   });
   const body = await res.text();
   console.log(`Email to ${to}: ${res.status} ${body}`);
-<<<<<<< HEAD
-=======
   return res.ok ? { success: true } : { error: body };
 }
 
@@ -135,7 +133,6 @@ function statusChangeEmailHtml(order: any, newStatus: string, trackingUrl: strin
       <p style="margin:24px 0 0;font-size:13px;color:#9ca3af">Karen West Natural Spring · +254 726 732 212</p>
     </div>
   </div></body></html>`;
->>>>>>> e49264fdd27be9cb3ee30c52e1cea68e880244f6
 }
 
 Deno.serve(async (req) => {
@@ -143,13 +140,6 @@ Deno.serve(async (req) => {
 
   try {
     const parsed = BodySchema.safeParse(await req.json());
-<<<<<<< HEAD
-    if (!parsed.success) {
-      return new Response(JSON.stringify({ error: "Invalid request" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-=======
     if (!parsed.success) return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const { orderId, statusUpdate, newStatus } = parsed.data;
@@ -182,50 +172,17 @@ Deno.serve(async (req) => {
       const customerWhatsappLink = normalised ? `https://wa.me/${normalised}?text=${encodeURIComponent(statusMsg)}` : null;
 
       return new Response(JSON.stringify({ success: true, customerWhatsappLink }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
->>>>>>> e49264fdd27be9cb3ee30c52e1cea68e880244f6
     }
 
-    const { messageId } = parsed.data;
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    // === NEW ORDER FLOW ===
+    // Email business owner
+    await sendEmail(BUSINESS_EMAIL, `New Order ${order.order_number} — ${order.customer_name}`, businessEmailHtml(order, items ?? [], trackingUrl));
 
-    const { data: msg, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("id", messageId)
-      .single();
-
-    if (error || !msg) {
-      return new Response(JSON.stringify({ error: "Message not found" }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Email customer if they provided an email
+    if (order.customer_email) {
+      await sendEmail(order.customer_email, `Your Karen West order is confirmed — ${order.order_number}`, customerEmailHtml(order, items ?? [], trackingUrl));
     }
 
-<<<<<<< HEAD
-    const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif">
-  <div style="max-width:520px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
-    <div style="background:#1e3a5f;padding:20px 28px">
-      <h1 style="margin:0;color:#fff;font-size:18px">💬 New Contact Message</h1>
-      <p style="margin:4px 0 0;color:#93c5fd;font-size:12px">Karen West Natural Spring Website</p>
-    </div>
-    <div style="padding:24px 28px">
-      <table style="width:100%;font-size:14px;margin-bottom:20px">
-        <tr><td style="color:#6b7280;padding:4px 0;width:80px">Name</td><td style="font-weight:600;color:#111827">${msg.name}</td></tr>
-        ${msg.phone ? `<tr><td style="color:#6b7280;padding:4px 0">Phone</td><td style="color:#111827">${msg.phone}</td></tr>` : ""}
-        ${msg.email ? `<tr><td style="color:#6b7280;padding:4px 0">Email</td><td style="color:#111827">${msg.email}</td></tr>` : ""}
-      </table>
-      <div style="background:#f9fafb;border-left:4px solid #065f46;padding:16px;border-radius:4px">
-        <p style="margin:0;font-size:14px;color:#374151;line-height:1.6">${msg.message}</p>
-      </div>
-      ${msg.phone ? `<div style="margin-top:20px"><a href="https://wa.me/${msg.phone.replace(/\D/g, "").replace(/^0/, "254")}?text=${encodeURIComponent(`Hi ${msg.name}, thanks for reaching out to Karen West Natural Spring!`)}" style="background:#16a34a;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">Reply on WhatsApp</a></div>` : ""}
-    </div>
-  </div></body></html>`;
-
-    await sendEmail(BUSINESS_EMAIL, `New Message from ${msg.name} — Karen West Website`, html);
-=======
     // Build customer WhatsApp message
     const phone = order.phone?.replace(/\D/g, "");
     const normalised = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
@@ -257,17 +214,10 @@ Deno.serve(async (req) => {
       : `\nTotal: ${Number(order.total_amount).toLocaleString()} KSH\n`;
     ownerMsg += `\nTrack: ${trackingUrl}`;
     const ownerWhatsappLink = `https://wa.me/${BUSINESS_WHATSAPP}?text=${encodeURIComponent(ownerMsg)}`;
->>>>>>> e49264fdd27be9cb3ee30c52e1cea68e880244f6
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ success: true, trackingUrl, customerWhatsappLink, ownerWhatsappLink }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err) {
-    console.error("notify-contact error:", err);
-    return new Response(JSON.stringify({ error: "Internal error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("notify-order error:", err);
+    return new Response(JSON.stringify({ error: "Internal error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });

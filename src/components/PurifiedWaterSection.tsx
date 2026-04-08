@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { ShoppingCart, Droplets, Package } from "lucide-react";
-import pack500ml from "@/assets/pack-500ml.png";
-import pack1litre from "@/assets/pack-1litre.png";
-import bottle5l from "@/assets/bottle-5l.png";
-import bottle10l from "@/assets/bottle-10l.png";
-import bottle20lSoft from "@/assets/bottle-20l-soft.png";
-import bottle20lHard from "@/assets/bottle-20l-hard.png";
+import pack500ml from "@/assets/pack-500ml.webp";
+import pack1litre from "@/assets/pack-1litre.webp";
+import bottle5l from "@/assets/bottle-5l.webp";
+import bottle10l from "@/assets/bottle-10l.webp";
+import bottle20lSoft from "@/assets/bottle-20l-soft.webp";
+import bottle20lHard from "@/assets/bottle-20l-hard.webp";
 import QuantitySelector from "./QuantitySelector";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";

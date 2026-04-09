@@ -46,7 +46,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-navy-foreground/10 pt-6 text-center">
-          <p className="text-sm text-navy-foreground/50">&copy; {new Date().getFullYear()} Karen West Natural Spring. All rights reserved.</p>
+          <p className="text-sm text-navy-foreground/50">&copy; 2026 Karen West Natural Spring · karenwestwater.co.ke · All rights reserved.</p>
         </div>
       </div>
     </footer>

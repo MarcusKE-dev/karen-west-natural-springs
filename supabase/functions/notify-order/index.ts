@@ -12,7 +12,7 @@ const BodySchema = z.object({
   newStatus: z.string().optional(),
 });
 
-const BUSINESS_EMAIL = "karenwestspring@gmail.com";
+const BUSINESS_EMAIL = "karenwestsprings@gmail.com";
 const BUSINESS_WHATSAPP = "254705062319";
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -26,7 +26,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: "Karen West Natural Spring <orders@mail.karenwestwater.co.ke>",
-      reply_to: "karenwestspring@gmail.com",
+      reply_to: "karenwestsprings@gmail.com",
       to: [to],
       subject,
       html,

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,9 @@ const Admin = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [fetching, setFetching] = useState(false);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const highlightedOrder = searchParams.get("order");
+  const orderRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
@@ -72,6 +76,15 @@ const Admin = () => {
     if (session) fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, activeTab]);
+
+  useEffect(() => {
+    if (highlightedOrder && orders.length > 0) {
+      const timeout = setTimeout(() => {
+        orderRefs.current[highlightedOrder]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [highlightedOrder, orders]);
 
   const fetchData = async () => {
     setFetching(true);
@@ -226,7 +239,8 @@ const Admin = () => {
             ) : (
               <div className="space-y-4">
                 {orders.map((order) => (
-                  <Card key={order.id}>
+                  <div key={order.id} ref={(el) => { orderRefs.current[order.order_number] = el }}>
+                  <Card className={highlightedOrder === order.order_number ? "ring-4 ring-emerald-500 ring-offset-2 shadow-xl" : ""}>
                     <CardContent className="p-4 space-y-3">
                       <div className="flex items-start justify-between flex-wrap gap-2">
                         <div>
@@ -260,6 +274,7 @@ const Admin = () => {
                       </div>
                     </CardContent>
                   </Card>
+                  </div>
                 ))}
               </div>
             )}

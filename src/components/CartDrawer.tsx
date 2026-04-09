@@ -124,15 +124,6 @@ const CartDrawer = () => {
             >
               📦 Track Your Order Live
             </a>
-            <a
-              href={orderResult.customerWhatsappLink || `https://wa.me/254705062319?text=${generateWhatsAppMessage(orderResult.orderNumber)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"
-            >
-              <MessageCircle className="w-5 h-5" />
-              Confirm via WhatsApp
-            </a>
             <button onClick={handleDone} className="w-full py-3 rounded-xl border border-border font-semibold hover:bg-secondary transition-colors">
               Done
             </button>

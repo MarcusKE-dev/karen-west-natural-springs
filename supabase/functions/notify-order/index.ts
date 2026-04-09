@@ -83,7 +83,7 @@ function customerEmailHtml(order: any, items: any[], trackingUrl: string) {
   </div></body></html>`;
 }
 
-function businessEmailHtml(order: any, items: any[], trackingUrl: string) {
+function businessEmailHtml(order: any, items: any[], trackingUrl: string, adminOrderUrl: string) {
   const isTruck = items.some((i: any) => i.product_type === "truck");
   const rows = items.map((i: any) =>
     `<tr><td style="padding:6px 0;border-bottom:1px solid #e5e7eb;color:#374151">${i.product_name} x${i.quantity}</td><td style="padding:6px 0;border-bottom:1px solid #e5e7eb;text-align:right;color:#374151">${isTruck ? "As negotiated" : Number(i.total_price).toLocaleString() + " KSH"}</td></tr>`
@@ -106,7 +106,10 @@ function businessEmailHtml(order: any, items: any[], trackingUrl: string) {
         <tr><td style="color:#6b7280;padding:4px 0">Total</td><td style="font-weight:700;font-size:16px;color:#065f46">${totalDisplay}</td></tr>
       </table>
       <table style="width:100%;border-collapse:collapse;margin-bottom:20px">${rows}</table>
-      <a href="${trackingUrl}" style="background:#065f46;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">View Order Tracking Page</a>
+      <div style="display:flex;gap:12px">
+        <a href="${adminOrderUrl}" style="background:#1e3a5f;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">⚙️ Manage This Order</a>
+        <a href="${trackingUrl}" style="background:#065f46;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">📦 View Tracking Page</a>
+      </div>
     </div>
   </div></body></html>`;
 }
@@ -177,7 +180,8 @@ Deno.serve(async (req) => {
 
     // === NEW ORDER FLOW ===
     // Email business owner
-    await sendEmail(BUSINESS_EMAIL, `New Order ${order.order_number} — ${order.customer_name}`, businessEmailHtml(order, items ?? [], trackingUrl));
+    const adminOrderUrl = `${siteUrl}/admin?order=${order.order_number}`;
+    await sendEmail(BUSINESS_EMAIL, `New Order ${order.order_number} — ${order.customer_name}`, businessEmailHtml(order, items ?? [], trackingUrl, adminOrderUrl));
 
     // Email customer if they provided an email
     if (order.customer_email) {

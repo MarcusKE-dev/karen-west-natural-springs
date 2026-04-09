@@ -112,7 +112,6 @@ function businessEmailHtml(order: any, items: any[], trackingUrl: string, adminO
       </div>
     </div>
   </div></body></html>`;
-  </div></body></html>`;
 }
 
 function statusChangeEmailHtml(order: any, newStatus: string, trackingUrl: string) {

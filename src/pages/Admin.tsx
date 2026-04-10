@@ -112,18 +112,45 @@ const Admin = () => {
     setSession(null);
   };
 
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
   const updateStatus = async (orderId: string, status: string) => {
-    await supabase.from("orders").update({ status: status as "pending" | "confirmed" | "delivered" | "cancelled" }).eq("id", orderId);
-    
-    // Notify customer of status change
+    setUpdatingOrderId(orderId);
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: status as "pending" | "confirmed" | "delivered" | "cancelled" })
+      .eq("id", orderId);
+
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      setUpdatingOrderId(null);
+      return;
+    }
+
+    // Notify customer and get WhatsApp link
+    let whatsappLink: string | null = null;
     try {
-      await supabase.functions.invoke("notify-order", {
+      const { data: notifyData } = await supabase.functions.invoke("notify-order", {
         body: { orderId, statusUpdate: true, newStatus: status },
       });
+      whatsappLink = notifyData?.customerWhatsappLink ?? null;
     } catch {
       // Notification failed silently
     }
-    
+
+    const label = status.charAt(0).toUpperCase() + status.slice(1);
+    toast({
+      title: `✅ Status → ${label}`,
+      description: whatsappLink
+        ? "Customer email sent. Open WhatsApp to also notify via message."
+        : "Status saved. Customer notified by email.",
+    });
+
+    if (whatsappLink) {
+      window.open(whatsappLink, "_blank");
+    }
+
+    setUpdatingOrderId(null);
     fetchData();
   };
 
@@ -265,10 +292,13 @@ const Admin = () => {
                           <Button
                             key={s}
                             size="sm"
+                            disabled={updatingOrderId === order.id}
                             className={`text-xs capitalize ${order.status === s ? statusBtnColors[s] + " ring-2 ring-offset-1 ring-black/20" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
                             onClick={() => updateStatus(order.id, s)}
                           >
-                            {s}
+                            {updatingOrderId === order.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : s}
                           </Button>
                         ))}
                       </div>

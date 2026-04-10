@@ -13,7 +13,7 @@ const BodySchema = z.object({
 });
 
 const BUSINESS_EMAIL = "karenwestsprings@gmail.com";
-const BUSINESS_WHATSAPP = "254705062319";
+const BUSINESS_WHATSAPP = "254726732212";
 
 async function sendEmail(to: string, subject: string, html: string) {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");

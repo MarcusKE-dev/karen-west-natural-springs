@@ -23,7 +23,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   }
   console.log(`📧 Sending email to: ${to} | Subject: ${subject}`);
   const payload = {
-    from: "Karen West Natural Spring <orders@karenwestwater.co.ke>",
+    from: "Karen West Natural Spring <orders@mail.karenwestwater.co.ke>",
     reply_to: "karenwestsprings@gmail.com",
     to: [to],
     subject,

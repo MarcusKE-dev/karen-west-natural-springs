@@ -12,16 +12,16 @@ const ContactSection = () => {
     setSubmitting(true);
 
     try {
-      const { data: dbMsg, error: dbError } = await supabase
+      const messageId = crypto.randomUUID();
+      const { error: dbError } = await supabase
         .from("messages")
         .insert({
+          id: messageId,
           name: form.name,
           phone: form.phone || null,
           email: form.email || null,
           message: form.message,
-        })
-        .select("id")
-        .single();
+        });
 
       if (dbError) throw dbError;
 

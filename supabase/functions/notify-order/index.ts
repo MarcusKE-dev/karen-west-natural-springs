@@ -18,23 +18,31 @@ const BUSINESS_WHATSAPP = "254726732212";
 async function sendEmail(to: string, subject: string, html: string) {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   if (!RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY not set — skipping email to", to);
+    console.error("❌ RESEND_API_KEY is NOT set in Supabase secrets. Emails will not send.");
     return { error: "RESEND_API_KEY not set" };
   }
+  console.log(`📧 Sending email to: ${to} | Subject: ${subject}`);
+  const payload = {
+    from: "Karen West Natural Spring <orders@karenwestwater.co.ke>",
+    reply_to: "karenwestsprings@gmail.com",
+    to: [to],
+    subject,
+    html,
+  };
+  console.log("📤 Resend payload from:", payload.from);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: "Karen West Natural Spring <orders@mail.karenwestwater.co.ke>",
-      reply_to: "karenwestsprings@gmail.com",
-      to: [to],
-      subject,
-      html,
-    }),
+    body: JSON.stringify(payload),
   });
   const body = await res.text();
-  console.log(`Email to ${to}: ${res.status} ${body}`);
-  return res.ok ? { success: true } : { error: body };
+  if (res.ok) {
+    console.log(`✅ Email sent to ${to} — Resend ID: ${body}`);
+    return { success: true };
+  } else {
+    console.error(`❌ Email FAILED to ${to} — Status: ${res.status} — Error: ${body}`);
+    return { error: body };
+  }
 }
 
 function formatTime(dateStr: string) {
@@ -154,7 +162,7 @@ Deno.serve(async (req) => {
 
     const { data: items } = await supabase.from("order_items").select("*").eq("order_id", orderId);
 
-    const siteUrl = Deno.env.get("SITE_URL") || "https://karen-west-natural-springs.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://www.karenwestwater.co.ke";
     const trackingUrl = `${siteUrl}/track/${order.order_number}`;
     const isTruck = (items ?? []).some((i: any) => i.product_type === "truck");
 

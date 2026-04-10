@@ -184,7 +184,7 @@ const CartDrawer = () => {
               </button>
 
               <a
-                href={`https://wa.me/254705062319?text=${generateWhatsAppMessage()}`}
+                href={`https://wa.me/254726732212?text=${generateWhatsAppMessage()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-colors"

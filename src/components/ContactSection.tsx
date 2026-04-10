@@ -27,7 +27,7 @@ const ContactSection = () => {
 
       // Notify business owner by email
       supabase.functions
-        .invoke("notify-contact", { body: { messageId: dbMsg.id } })
+        .invoke("notify-contact", { body: { messageId } })
         .catch(() => { });
 
       toast.success("Message sent! We'll get back to you soon.");

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Phone, MessageCircle, MapPin, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,22 +12,22 @@ const ContactSection = () => {
     setSubmitting(true);
 
     try {
-      const { data: dbMsg, error: dbError } = await supabase
+      const messageId = crypto.randomUUID();
+      const { error: dbError } = await supabase
         .from("messages")
         .insert({
+          id: messageId,
           name: form.name,
           phone: form.phone || null,
           email: form.email || null,
           message: form.message,
-        })
-        .select("id")
-        .single();
+        });
 
       if (dbError) throw dbError;
 
       // Notify business owner by email
       supabase.functions
-        .invoke("notify-contact", { body: { messageId: dbMsg.id } })
+        .invoke("notify-contact", { body: { messageId } })
         .catch(() => { });
 
       toast.success("Message sent! We'll get back to you soon.");

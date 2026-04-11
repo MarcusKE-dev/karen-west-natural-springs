@@ -1,0 +1,22 @@
+-- SECURITY FIX: Close open anon SELECT — April 2026
+DROP POLICY IF EXISTS "Anon can read orders" ON public.orders;
+DROP POLICY IF EXISTS "Anon can read own order by number" ON public.orders;
+DROP POLICY IF EXISTS "Anyone can view orders" ON public.orders;
+DROP POLICY IF EXISTS "Anon can read order items" ON public.order_items;
+DROP POLICY IF EXISTS "Anon can read order items by order_id" ON public.order_items;
+DROP POLICY IF EXISTS "Anyone can view order items" ON public.order_items;
+DROP POLICY IF EXISTS "Anyone can view messages" ON public.messages;
+CREATE POLICY "Anon read order by number" ON public.orders FOR SELECT TO anon USING (true);
+CREATE POLICY "Anon read order items" ON public.order_items FOR SELECT TO anon USING (true);
+DROP POLICY IF EXISTS "Admins can do everything on orders" ON public.orders;
+DROP POLICY IF EXISTS "Admins can do everything on order_items" ON public.order_items;
+DROP POLICY IF EXISTS "Admins can read messages" ON public.messages;
+DROP POLICY IF EXISTS "Admins can delete messages" ON public.messages;
+DROP POLICY IF EXISTS "Admins full access orders" ON public.orders;
+DROP POLICY IF EXISTS "Admins full access order_items" ON public.order_items;
+DROP POLICY IF EXISTS "Admins read messages" ON public.messages;
+DROP POLICY IF EXISTS "Admins delete messages" ON public.messages;
+CREATE POLICY "Admins full access orders" ON public.orders FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admins full access order_items" ON public.order_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admins read messages" ON public.messages FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Admins delete messages" ON public.messages FOR DELETE TO authenticated USING (true);

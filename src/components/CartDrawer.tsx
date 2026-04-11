@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { ShoppingCart, X, Minus, Plus, Trash2, MapPin, MessageCircle } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Trash2, MapPin, MessageCircle, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const BUSINESS_WHATSAPP = "254726732212";
+
 const CartDrawer = () => {
   const { items, updateQuantity, removeItem, clearCart, totalItems, totalAmount, isCartOpen, setIsCartOpen } = useCart();
   const [checkoutForm, setCheckoutForm] = useState({ name: "", phone: "", email: "", location: "", instructions: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderResult, setOrderResult] = useState<{ orderNumber: string; trackingUrl: string; customerWhatsappLink: string | null } | null>(null);
+  const [orderResult, setOrderResult] = useState<{ orderNumber: string; trackingUrl: string } | null>(null);
 
   const handlePinLocation = () => {
     if (navigator.geolocation) {
@@ -23,18 +25,21 @@ const CartDrawer = () => {
     }
   };
 
-  const generateWhatsAppMessage = (orderNumber?: string) => {
-    let msg = "Hello, I want to place an order:\n\n";
-    items.forEach((item) => {
-      msg += `• ${item.name} x ${item.quantity} — ${(item.unitPrice * item.quantity).toLocaleString()} KSH\n`;
-    });
-    msg += `\nTotal Items: ${totalItems}\nTotal: ${totalAmount.toLocaleString()} KSH`;
-    if (orderNumber) msg += `\nOrder ID: #${orderNumber}`;
-    if (checkoutForm.name) msg += `\nName: ${checkoutForm.name}`;
-    if (checkoutForm.phone) msg += `\nPhone: ${checkoutForm.phone}`;
-    if (checkoutForm.location) msg += `\nLocation: ${checkoutForm.location}`;
-    if (checkoutForm.instructions) msg += `\nInstructions: ${checkoutForm.instructions}`;
-    return encodeURIComponent(msg);
+  // WhatsApp message to BUSINESS — used for "Order via WhatsApp Instead"
+  const generateOwnerWhatsAppMessage = () => {
+    const lines = [
+      "💧 *New Order — Karen West Natural Spring*",
+      "",
+      ...items.map((item) => `• ${item.name} x${item.quantity} — ${(item.unitPrice * item.quantity).toLocaleString()} KSH`),
+      "",
+      `💰 *Total:* ${totalAmount.toLocaleString()} KSH`,
+      `🛒 *Items:* ${totalItems}`,
+    ];
+    if (checkoutForm.name) lines.push(`👤 *Name:* ${checkoutForm.name}`);
+    if (checkoutForm.phone) lines.push(`📞 *Phone:* ${checkoutForm.phone}`);
+    if (checkoutForm.location) lines.push(`📍 *Location:* ${checkoutForm.location}`);
+    if (checkoutForm.instructions) lines.push(`📝 *Notes:* ${checkoutForm.instructions}`);
+    return encodeURIComponent(lines.join("\n"));
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -73,19 +78,19 @@ const CartDrawer = () => {
 
       localStorage.setItem("kw-last-order", order.order_number);
 
-      // Trigger notification edge function
+      // Trigger notification edge function (best-effort — order is already saved)
       let trackingUrl = `/track/${order.order_number}`;
-      let customerWhatsappLink: string | null = null;
       try {
         const { data: notifData } = await supabase.functions.invoke("notify-order", {
           body: { orderId: order.id },
         });
         if (notifData?.trackingUrl) trackingUrl = notifData.trackingUrl;
-        if (notifData?.customerWhatsappLink) customerWhatsappLink = notifData.customerWhatsappLink;
-      } catch { /* silent */ }
+      } catch {
+        // silent — order saved, notification is best-effort
+      }
 
-      setOrderResult({ orderNumber: order.order_number, trackingUrl, customerWhatsappLink });
-      toast.success(`Order #${order.order_number} placed successfully!`);
+      setOrderResult({ orderNumber: order.order_number, trackingUrl });
+      toast.success(`Order #${order.order_number} placed!`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to place order. Please try again.");
@@ -107,34 +112,52 @@ const CartDrawer = () => {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 font-display">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            {orderResult ? "Order Confirmed!" : `Your Cart (${totalItems})`}
+            {orderResult ? "Order Placed!" : `Your Cart (${totalItems})`}
           </SheetTitle>
         </SheetHeader>
 
+        {/* ── SUCCESS SCREEN ── */}
         {orderResult ? (
-          <div className="mt-6 text-center space-y-4">
-            <div className="bg-primary/10 rounded-xl p-6">
-              <p className="text-sm text-muted-foreground mb-1">Order Number</p>
-              <p className="text-2xl font-bold text-primary font-display">{orderResult.orderNumber}</p>
+          <div className="mt-6 space-y-4">
+            <div className="bg-primary/10 rounded-xl p-6 text-center">
+              <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground mb-1">Your Order Number</p>
+              <p className="text-3xl font-bold text-primary font-display tracking-widest">{orderResult.orderNumber}</p>
+              <p className="text-xs text-muted-foreground mt-2">Save this number to track your delivery</p>
             </div>
-            <p className="text-sm text-muted-foreground">Save your order number to track your order.</p>
+
+            <p className="text-sm text-center text-muted-foreground">
+              {checkoutForm.email
+                ? "A confirmation email is on its way to you."
+                : "We'll contact you on the phone number you provided."}
+            </p>
+
             <a
               href={orderResult.trackingUrl}
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-colors"
             >
               📦 Track Your Order Live
             </a>
-            <button onClick={handleDone} className="w-full py-3 rounded-xl border border-border font-semibold hover:bg-secondary transition-colors">
+
+            <button
+              onClick={handleDone}
+              className="w-full py-3 rounded-xl border border-border font-semibold hover:bg-secondary transition-colors"
+            >
               Done
             </button>
           </div>
+
+        /* ── EMPTY CART ── */
         ) : items.length === 0 ? (
           <div className="mt-12 text-center">
             <ShoppingCart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-muted-foreground">Your cart is empty</p>
           </div>
+
+        /* ── CART + CHECKOUT FORM ── */
         ) : (
           <div className="mt-4 flex flex-col gap-4">
+            {/* Cart items */}
             <div className="space-y-3">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 bg-secondary/50 rounded-xl p-3">
@@ -159,32 +182,40 @@ const CartDrawer = () => {
               ))}
             </div>
 
+            {/* Total */}
             <div className="flex justify-between items-center py-3 border-t border-border">
               <span className="font-bold text-foreground">Total</span>
               <span className="text-xl font-bold text-primary">{totalAmount.toLocaleString()} KSH</span>
             </div>
 
+            {/* Checkout form */}
             <form onSubmit={handlePlaceOrder} className="space-y-3">
               <p className="text-sm font-semibold text-foreground">Delivery Details</p>
               <input required placeholder="Your Name" value={checkoutForm.name} onChange={(e) => setCheckoutForm({ ...checkoutForm, name: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <input required placeholder="Phone Number" value={checkoutForm.phone} onChange={(e) => setCheckoutForm({ ...checkoutForm, phone: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
-              <input type="email" placeholder="Email (optional — get order confirmation)" value={checkoutForm.email} onChange={(e) => setCheckoutForm({ ...checkoutForm, email: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              <input type="email" placeholder="Email (optional — for order confirmation)" value={checkoutForm.email} onChange={(e) => setCheckoutForm({ ...checkoutForm, email: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <button type="button" onClick={handlePinLocation} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full transition-colors">
-                    <MapPin className="w-3 h-3" /> Pin Location
+                    <MapPin className="w-3 h-3" /> Pin My Location
                   </button>
                 </div>
-                <input placeholder="Delivery Location" value={checkoutForm.location} onChange={(e) => setCheckoutForm({ ...checkoutForm, location: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                <input placeholder="Delivery Location (e.g. Ngong, off Magadi Rd)" value={checkoutForm.location} onChange={(e) => setCheckoutForm({ ...checkoutForm, location: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               </div>
-              <textarea placeholder="Instructions (optional)" rows={2} value={checkoutForm.instructions} onChange={(e) => setCheckoutForm({ ...checkoutForm, instructions: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground resize-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              <textarea placeholder="Special instructions (optional)" rows={2} value={checkoutForm.instructions} onChange={(e) => setCheckoutForm({ ...checkoutForm, instructions: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground resize-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
 
               <button type="submit" disabled={isSubmitting} className="w-full py-3.5 rounded-xl bg-water-gradient text-primary-foreground font-bold text-base hover:opacity-90 hover:shadow-xl transition-all duration-300 disabled:opacity-50">
                 {isSubmitting ? "Placing Order..." : "Place Order"}
               </button>
 
+              <div className="relative flex items-center gap-3">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-muted-foreground">or</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
               <a
-                href={`https://wa.me/254726732212?text=${generateWhatsAppMessage()}`}
+                href={`https://wa.me/${BUSINESS_WHATSAPP}?text=${generateOwnerWhatsAppMessage()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-colors"

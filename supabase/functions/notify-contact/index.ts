@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const BodySchema = z.object({ messageId: z.string().uuid() });
-const BUSINESS_EMAIL = "karenwestspring@gmail.com";
+const BUSINESS_EMAIL = "karenwestsprings@gmail.com";
 
 async function sendEmail(to: string, subject: string, html: string) {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -24,7 +24,7 @@ async function sendEmail(to: string, subject: string, html: string) {
         },
         body: JSON.stringify({
             from: "Karen West Natural Spring <hello@mail.karenwestwater.co.ke>",
-            reply_to: "karenwestspring@gmail.com",
+            reply_to: "karenwestsprings@gmail.com",
             to: [to],
             subject,
             html,

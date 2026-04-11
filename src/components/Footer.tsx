@@ -29,13 +29,13 @@ const Footer = () => {
             <p className="text-sm text-navy-foreground/70 mb-4">Ngong & Surrounding Areas · P.O. Box 24563-00502, Nairobi</p>
             <div className="flex gap-3">
               <a
-                href="tel:+254705062319"
+                href="tel:+254726732212"
                 className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"
               >
                 <Phone className="w-4 h-4 text-navy-foreground" />
               </a>
               <a
-                href="https://wa.me/254705062319"
+                href="https://wa.me/254726732212"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"

@@ -79,10 +79,10 @@ const ContactSection = () => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <a href="tel:+254705062319" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-water-gradient text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
+              <a href="tel:+254726732212" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-water-gradient text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
                 <Phone className="w-4 h-4" /> Call Now
               </a>
-              <a href="https://wa.me/254705062319" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-card border-2 border-primary text-primary font-semibold hover:bg-primary/5 transition-colors">
+              <a href="https://wa.me/254726732212" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-card border-2 border-primary text-primary font-semibold hover:bg-primary/5 transition-colors">
                 <MessageCircle className="w-4 h-4" /> WhatsApp
               </a>
             </div>

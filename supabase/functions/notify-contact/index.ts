@@ -1,117 +1,84 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-const corsHeaders = {
+const cors = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BodySchema = z.object({ messageId: z.string().uuid() });
 const BUSINESS_EMAIL = "karenwestsprings@gmail.com";
 
-async function sendEmail(to: string, subject: string, html: string) {
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
-        console.error("❌ RESEND_API_KEY is not set in Supabase secrets");
-        return { error: "RESEND_API_KEY not set" };
-    }
-    console.log(`📧 Sending email to ${to}`);
+async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+    const key = Deno.env.get("RESEND_API_KEY");
+    if (!key) { console.error("RESEND_API_KEY secret is missing"); return false; }
+
     const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
         body: JSON.stringify({
             from: "Karen West Natural Spring <hello@mail.karenwestwater.co.ke>",
-            reply_to: "karenwestsprings@gmail.com",
+            reply_to: BUSINESS_EMAIL,
             to: [to],
             subject,
             html,
         }),
     });
-    const body = await res.text();
-    if (res.ok) {
-        console.log(`✅ Email sent: ${res.status}`);
-        return { success: true };
-    } else {
-        console.error(`❌ Email FAILED: ${res.status} — ${body}`);
-        return { error: body };
-    }
+    const txt = await res.text();
+    if (res.ok) { console.log(`EMAIL OK → ${to} | ${txt}`); return true; }
+    console.error(`EMAIL FAIL → ${to} | ${res.status} | ${txt}`);
+    return false;
 }
 
 Deno.serve(async (req) => {
-    if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+    if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
-    try {
-        const body = await req.json();
-        console.log("📨 notify-contact called with:", JSON.stringify(body));
+    console.log("notify-contact invoked");
 
-        const parsed = BodySchema.safeParse(body);
-        if (!parsed.success) {
-            console.error("❌ Invalid request:", parsed.error);
-            return new Response(JSON.stringify({ error: "Invalid request" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-        }
+    let body: any;
+    try { body = await req.json(); }
+    catch { return new Response(JSON.stringify({ error: "Bad JSON" }), { status: 400, headers: cors }); }
 
-        const { messageId } = parsed.data;
-        const supabase = createClient(
-            Deno.env.get("SUPABASE_URL")!,
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
+    console.log("body:", JSON.stringify(body));
 
-        const { data: msg, error } = await supabase
-            .from("messages")
-            .select("*")
-            .eq("id", messageId)
-            .single();
-
-        if (error || !msg) {
-            console.error("❌ Message not found:", messageId, error);
-            return new Response(JSON.stringify({ error: "Message not found" }), {
-                status: 404,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-        }
-        console.log("✅ Message found from:", msg.name);
-
-        const phoneForWA = msg.phone
-            ? msg.phone.replace(/\D/g, "").replace(/^0/, "254")
-            : null;
-
-        const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif">
-  <div style="max-width:520px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
-    <div style="background:#1e3a5f;padding:20px 28px">
-      <h1 style="margin:0;color:#fff;font-size:18px">💬 New Contact Message</h1>
-      <p style="margin:4px 0 0;color:#93c5fd;font-size:12px">Karen West Natural Spring — karenwestwater.co.ke</p>
-    </div>
-    <div style="padding:24px 28px">
-      <table style="width:100%;font-size:14px;margin-bottom:20px">
-        <tr><td style="color:#6b7280;padding:4px 0;width:80px">Name</td><td style="font-weight:600;color:#111827">${msg.name}</td></tr>
-        ${msg.phone ? `<tr><td style="color:#6b7280;padding:4px 0">Phone</td><td style="color:#111827">${msg.phone}</td></tr>` : ""}
-        ${msg.email ? `<tr><td style="color:#6b7280;padding:4px 0">Email</td><td style="color:#111827">${msg.email}</td></tr>` : ""}
-      </table>
-      <div style="background:#f9fafb;border-left:4px solid #065f46;padding:16px;border-radius:4px">
-        <p style="margin:0;font-size:14px;color:#374151;line-height:1.6">${msg.message}</p>
-      </div>
-      ${phoneForWA ? `<div style="margin-top:20px"><a href="https://wa.me/${phoneForWA}?text=${encodeURIComponent(`Hi ${msg.name}, thanks for reaching out to Karen West Natural Spring! How can we help you?`)}" style="background:#16a34a;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">💬 Reply on WhatsApp</a></div>` : ""}
-    </div>
-  </div></body></html>`;
-
-        const result = await sendEmail(BUSINESS_EMAIL, `New Message from ${msg.name} — Karen West Website`, html);
-        console.log("Email result:", JSON.stringify(result));
-
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-    } catch (err) {
-        console.error("❌ notify-contact crashed:", err);
-        return new Response(JSON.stringify({ error: "Internal error", message: String(err) }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    const { messageId } = body ?? {};
+    if (!messageId) {
+        console.error("Missing messageId");
+        return new Response(JSON.stringify({ error: "messageId required" }), { status: 400, headers: cors });
     }
+
+    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+    const { data: msg, error } = await sb.from("messages").select("*").eq("id", messageId).single();
+    if (error || !msg) {
+        console.error("Message not found:", messageId, error);
+        return new Response(JSON.stringify({ error: "Message not found" }), { status: 404, headers: cors });
+    }
+    console.log("message from:", msg.name);
+
+    const waPhone = msg.phone ? msg.phone.replace(/\D/g, "").replace(/^0/, "254") : null;
+
+    const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif">
+<div style="max-width:520px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden">
+  <div style="background:#1e3a5f;padding:20px 28px">
+    <h1 style="margin:0;color:#fff;font-size:18px">💬 New Contact Message</h1>
+    <p style="margin:4px 0 0;color:#93c5fd;font-size:12px">karenwestwater.co.ke</p>
+  </div>
+  <div style="padding:24px 28px">
+    <table style="width:100%;font-size:14px;margin-bottom:20px">
+      <tr><td style="color:#6b7280;padding:4px 0;width:70px">Name</td><td style="font-weight:600;color:#111827">${msg.name}</td></tr>
+      ${msg.phone ? `<tr><td style="color:#6b7280;padding:4px 0">Phone</td><td style="color:#111827">${msg.phone}</td></tr>` : ""}
+      ${msg.email ? `<tr><td style="color:#6b7280;padding:4px 0">Email</td><td style="color:#111827">${msg.email}</td></tr>` : ""}
+    </table>
+    <div style="background:#f9fafb;border-left:4px solid #065f46;padding:16px;border-radius:4px;margin-bottom:20px">
+      <p style="margin:0;font-size:14px;color:#374151;line-height:1.6">${msg.message}</p>
+    </div>
+    ${waPhone ? `<a href="https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${msg.name}, thanks for contacting Karen West Natural Spring! How can we help you?`)}"
+       style="background:#16a34a;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block">
+       💬 Reply on WhatsApp
+    </a>` : ""}
+  </div>
+</div></body></html>`;
+
+    await sendEmail(BUSINESS_EMAIL, `New Message from ${msg.name} — Karen West Website`, html);
+
+    return new Response(JSON.stringify({ success: true }), { headers: cors });
 });
